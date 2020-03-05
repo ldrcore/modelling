@@ -17,5 +17,14 @@
         "psr-4": {
             "LDRCore\\Modelling\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LDRCore\\Modelling\\Providers\\ModellingServiceProvider"
+            ],
+            "aliases": {
+            }
+        }
     }
 }
