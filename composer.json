@@ -1,0 +1,21 @@
+{
+    "name": "ldrcore/modelling",
+    "description": "A Laravel package to include helpful addons for large scale system developments.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Leonardo Leal da Rosa",
+            "email": "leonardodarosa23@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
+        "laravel": ">=5.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "LDRCore\\Modelling\\": "src/"
+        }
+    }
+}
