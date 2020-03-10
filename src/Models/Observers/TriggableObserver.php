@@ -2,23 +2,25 @@
 
 namespace LDRCore\Modelling\Models\Observers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use LDRCore\Modelling\Models\Traits\Triggable;
 
 class TriggableObserver
 {
-	public function creating(Triggable $model){
+	public function creating(Model $model)
+	{
 		$model->beforeCreate();
         $model->filterDatabaseArgs();
 	}
 	
-	public function created(Triggable $model){
+	public function created(Model $model)
+	{
 		$model->restoreBaseArgs();
 		$model->afterCreated();
 	}
 	
-	public function updating(Triggable $model){
-		$model->beginTransaction();
+	public function updating(Model $model)
+	{
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
 			$model->beforeRestore();
 		} else {
@@ -28,7 +30,8 @@ class TriggableObserver
         $model->filterDatabaseArgs();
 	}
 	
-	public function updated(Triggable $model){
+	public function updated(Model $model)
+	{
 		$model->restoreBaseArgs();
 		$changes = self::computeChanges($model);
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
@@ -36,10 +39,10 @@ class TriggableObserver
 		} else {
 			$model->afterUpdated($changes);
 		}
-		$model->commit();
 	}
 	
-	public function deleting(Triggable $model){
+	public function deleting(Model $model)
+	{
 		$model->beginTransaction();
 		if (has_trait($model, SoftDeletes::class)) {
 			if ($model->forceDeleting) {
@@ -53,7 +56,8 @@ class TriggableObserver
 		$model->filterDatabaseArgs();
 	}
 	
-	public function deleted(Triggable $model){
+	public function deleted(Model $model)
+	{
 		if (has_trait($model, SoftDeletes::class)) {
 			if ($model->forceDeleting) {
 				$model->afterForceDeleted();
@@ -67,25 +71,38 @@ class TriggableObserver
 		$model->commit();
 	}
 	
-	public function restoring(Triggable $model) {
+	public function restoring(Model $model)
+	{
 		$model->restoring = true;
 		$model->beginTransaction();
 		$model->beforeRestore();
 		$model->filterDatabaseArgs();
 	}
 	
-	public function restored(Triggable $model) {
+	public function restored(Model $model)
+	{
 		$model->restoreBaseArgs();
 		$model->afterRestored();
 		$model->commit();
 		$model->restoring = false;
 	}
 	
-	public function saving(Triggable $model) {
+	public function saving(Model $model)
+	{
 		$model->beginTransaction();
 	}
 	
-	public function saved(Triggable $model) {
+	public function saved(Model $model)
+	{
 		$model->commit();
+	}
+	
+	protected static function computeChanges(Model $model)
+	{
+		$changes = [];
+		foreach ($model->getChanges() as $attribute => $value) {
+			$changes[$attribute] = ['old' => $model->originals[$attribute], 'new' => $value];
+		}
+		return $changes;
 	}
 }

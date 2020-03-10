@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
 trait Validatable
 {
@@ -17,15 +18,9 @@ trait Validatable
 	
 	public static function bootValidatable()
 	{
-		static::saving(function (self $model) {
-			$model->validate();
-		});
-		static::updating(function (self $model) {
-			$model->validate();
-		});
-		static::deleting(function (self $model) {
-			$model->validate();
-		});
+		if (!has_trait((new static), Triggable::class)) {
+			static::observe(ValidatableObserver::class);
+		}
 	}
 	
 	public function getRules() : array
