@@ -13,11 +13,11 @@ trait Triggable
     
 	public static function bootTriggable()
 	{
-		// Dispatch Validation always BEFORE our own observer.
+		static::observe(TriggableObserver::class);
+		// Dispatch Validation always AFTER our own observer.
 		if (has_trait(new static, Validatable::class)) {
 			static::observe(ValidatableObserver::class);
 		}
-		static::observe(TriggableObserver::class);
 	}
 	
     public function newEloquentBuilder($query)

@@ -10,11 +10,6 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
 trait Validatable
 {
-	protected $rules;
-	
-	protected $labels;
-	
-	protected $messages;
 	
 	public static function bootValidatable()
 	{
