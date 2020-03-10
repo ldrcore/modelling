@@ -10,8 +10,6 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 trait Triggable
 {
     public $base_attribute = [];
-    public $originals = [];
-    public $restoring = false;
     
 	public static function bootTriggable()
 	{
