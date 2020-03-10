@@ -8,8 +8,16 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
+/**
+ * Trait Validatable
+ * @property array $rules
+ * @property array $labels
+ * @property array $messages
+ * @package LDRCore\Modelling\Models\Traits
+ */
 trait Validatable
 {
+	public $errors = [];
 	
 	public static function bootValidatable()
 	{
@@ -53,6 +61,9 @@ trait Validatable
 	{
 		$this->beforeValidate();
 		$v = $this->getValidator();
+		$v->after(function () use ($v) {
+			$this->errors = $v->errors();
+		});
 		$v->validate();
 		$this->afterValidated($v);
 	}
