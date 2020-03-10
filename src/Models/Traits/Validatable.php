@@ -10,11 +10,11 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
 trait Validatable
 {
-	protected $rules = [];
+	protected $rules;
 	
-	protected $labels = [];
+	protected $labels;
 	
-	protected $messages = [];
+	protected $messages;
 	
 	public static function bootValidatable()
 	{
@@ -25,17 +25,17 @@ trait Validatable
 	
 	public function getRules() : array
 	{
-		return $this->rules;
+		return $this->rules ?? [];
 	}
 	
 	public function getLabels() : array
 	{
-		return $this->labels;
+		return $this->labels ?? [];
 	}
 	
 	public function getMessages() : array
 	{
-		return $this->messages;
+		return $this->messages ?? [];
 	}
 	
 	public function getValidationData() : array
