@@ -5,95 +5,17 @@ namespace LDRCore\Modelling\Models\Traits;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
 use LDRCore\Modelling\Eloquent\Builder;
+use LDRCore\Modelling\Models\Observers\TriggableObserver;
 
 trait Triggable
 {
-    private $base_attribute = [];
-    private $originals = [];
-    private $restoring = false;
+    public $base_attribute = [];
+    public $originals = [];
+    public $restoring = false;
     
 	public static function bootTriggable()
 	{
-		static::creating(function(self $model){
-			$model->beforeCreate();
-            $model->filterDatabaseArgs();
-		});
-		static::created(function(self $model){
-			$model->restoreBaseArgs();
-			$model->afterCreated();
-		});
-		static::updating(function(self $model){
-			if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-				$model->beforeRestore();
-			} else {
-				$model->beforeUpdate();
-			}
-			$model->originals = $model->getOriginal();
-            $model->filterDatabaseArgs();
-		});
-		static::updated(function(self $model){
-			$model->restoreBaseArgs();
-			$changes = self::computeChanges($model);
-			if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-				$model->afterRestored($changes);
-			} else {
-				$model->afterUpdated($changes);
-			}
-		});
-		static::deleting(function(self $model){
-			if (has_trait($model, SoftDeletes::class)) {
-				if ($model->forceDeleting) {
-					$model->beforeForceDelete();
-				} else {
-					$model->beforeDelete();
-				}
-			}  else {
-				$model->beforeDelete();
-			}
-			$model->filterDatabaseArgs();
-		});
-		static::deleted(function(self $model){
-			if (has_trait($model, SoftDeletes::class)) {
-				if ($model->forceDeleting) {
-					$model->afterForceDeleted();
-				} else {
-					$model->afterDeleted();
-				}
-			} else {
-				$model->afterDeleted();
-			}
-			$model->restoreBaseArgs();
-		});
-		static::registerModelEvent('restoring', function (self $model) {
-			$model->restoring = true;
-			$model->beginTransaction();
-			$model->beforeRestore();
-			$model->filterDatabaseArgs();
-		});
-		static::registerModelEvent('restored', function (self $model) {
-			$model->restoreBaseArgs();
-			$model->afterRestored();
-			$model->commit();
-			$model->restoring = false;
-		});
-		static::saving(function (self $model) {
-			$model->beginTransaction();
-		});
-		static::saved(function (self $model) {
-			$model->commit();
-		});
-		static::updating(function (self $model) {
-			$model->beginTransaction();
-		});
-		static::updated(function (self $model) {
-			$model->commit();
-		});
-		static::deleting(function (self $model) {
-			$model->beginTransaction();
-		});
-		static::deleted(function (self $model) {
-			$model->commit();
-		});
+		static::observe(TriggableObserver::class);
 	}
 	
     public function newEloquentBuilder($query)
