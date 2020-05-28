@@ -5,6 +5,10 @@ A package designed for those who believe that every Model is more than just a bu
 This package aims to provide basic features to use Models as true relationship entities in data persistance, 
 and some other database-like functionatilies that will improve the reusability and the trust of your application. 
 
+## Instalation
+
+Just a simple `composer require ldrcore/modelling` and you can use it. The package use laravel's auto-discover.
+
 ## Models
 
 The Models can use our traits for extended functionality. Turn them more than just a query builder!
