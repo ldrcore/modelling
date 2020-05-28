@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @package LDRCore\Modelling\Traits
  * @property Model $model
  */
-class Persistable
+trait Persistable
 {
     /**
      * @param array $data
