@@ -6,41 +6,39 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
+/**
+ * Trait Validatable
+ * @property array $rules
+ * @property array $labels
+ * @property array $messages
+ * @package LDRCore\Modelling\Models\Traits
+ */
 trait Validatable
 {
-	protected $rules = [];
-	
-	protected $labels = [];
-	
-	protected $messages = [];
+	public $errors = [];
 	
 	public static function bootValidatable()
 	{
-		static::saving(function (self $model) {
-			$model->validate();
-		});
-		static::updating(function (self $model) {
-			$model->validate();
-		});
-		static::deleting(function (self $model) {
-			$model->validate();
-		});
+		if (!has_trait((new static), Triggable::class)) {
+			static::observe(ValidatableObserver::class);
+		}
 	}
 	
 	public function getRules() : array
 	{
-		return $this->rules;
+		return $this->rules ?? [];
 	}
 	
 	public function getLabels() : array
 	{
-		return $this->labels;
+		return $this->labels ?? [];
 	}
 	
 	public function getMessages() : array
 	{
-		return $this->messages;
+		return $this->messages ?? [];
 	}
 	
 	public function getValidationData() : array
@@ -63,6 +61,9 @@ trait Validatable
 	{
 		$this->beforeValidate();
 		$v = $this->getValidator();
+		$v->after(function () use ($v) {
+			$this->errors = $v->errors();
+		});
 		$v->validate();
 		$this->afterValidated($v);
 	}

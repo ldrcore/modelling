@@ -2,98 +2,22 @@
 
 namespace LDRCore\Modelling\Models\Traits;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
 use LDRCore\Modelling\Eloquent\Builder;
+use LDRCore\Modelling\Models\Observers\TriggableObserver;
+use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
 trait Triggable
 {
-    private $base_attribute = [];
-    private $originals = [];
-    private $restoring = false;
+    public $base_attribute = [];
     
 	public static function bootTriggable()
 	{
-		static::creating(function(self $model){
-			$model->beforeCreate();
-            $model->filterDatabaseArgs();
-		});
-		static::created(function(self $model){
-			$model->restoreBaseArgs();
-			$model->afterCreated();
-		});
-		static::updating(function(self $model){
-			if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-				$model->beforeRestore();
-			} else {
-				$model->beforeUpdate();
-			}
-			$model->originals = $model->getOriginal();
-            $model->filterDatabaseArgs();
-		});
-		static::updated(function(self $model){
-			$model->restoreBaseArgs();
-			$changes = self::computeChanges($model);
-			if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-				$model->afterRestored($changes);
-			} else {
-				$model->afterUpdated($changes);
-			}
-		});
-		static::deleting(function(self $model){
-			if (has_trait($model, SoftDeletes::class)) {
-				if ($model->forceDeleting) {
-					$model->beforeForceDelete();
-				} else {
-					$model->beforeDelete();
-				}
-			}  else {
-				$model->beforeDelete();
-			}
-			$model->filterDatabaseArgs();
-		});
-		static::deleted(function(self $model){
-			if (has_trait($model, SoftDeletes::class)) {
-				if ($model->forceDeleting) {
-					$model->afterForceDeleted();
-				} else {
-					$model->afterDeleted();
-				}
-			} else {
-				$model->afterDeleted();
-			}
-			$model->restoreBaseArgs();
-		});
-		static::registerModelEvent('restoring', function (self $model) {
-			$model->restoring = true;
-			$model->beginTransaction();
-			$model->beforeRestore();
-			$model->filterDatabaseArgs();
-		});
-		static::registerModelEvent('restored', function (self $model) {
-			$model->restoreBaseArgs();
-			$model->afterRestored();
-			$model->commit();
-			$model->restoring = false;
-		});
-		static::saving(function (self $model) {
-			$model->beginTransaction();
-		});
-		static::saved(function (self $model) {
-			$model->commit();
-		});
-		static::updating(function (self $model) {
-			$model->beginTransaction();
-		});
-		static::updated(function (self $model) {
-			$model->commit();
-		});
-		static::deleting(function (self $model) {
-			$model->beginTransaction();
-		});
-		static::deleted(function (self $model) {
-			$model->commit();
-		});
+		static::observe(TriggableObserver::class);
+		// Dispatch Validation always AFTER our own observer.
+		if (has_trait(new static, Validatable::class)) {
+			static::observe(ValidatableObserver::class);
+		}
 	}
 	
     public function newEloquentBuilder($query)
@@ -101,7 +25,7 @@ trait Triggable
         return new Builder($query);
     }
 	
-	protected function filterDatabaseArgs()
+	public function filterDatabaseArgs()
 	{
 		$this->base_attribute = $this->attributes;
 		$cols = Schema::getColumnListing($this->getTable());
@@ -112,19 +36,10 @@ trait Triggable
 		}
 	}
 	
-	protected function restoreBaseArgs()
+	public function restoreBaseArgs()
 	{
 		$this->attributes = array_merge($this->attributes, $this->base_attribute);
 		unset($this->oldAttrs);
-	}
-	
-	protected static function computeChanges(self $model)
-	{
-		$changes = [];
-		foreach ($model->getChanges() as $attribute => $value) {
-			$changes[$attribute] = ['old' => $model->originals[$attribute], 'new' => $value];
-		}
-		return $changes;
 	}
 	
 	public function beginTransaction()
@@ -145,43 +60,43 @@ trait Triggable
         $conn && $conn->rollBack();
     }
     
-	protected function beforeCreate()
+	public function beforeCreate()
 	{
 	}
 	
-	protected function afterCreated()
+	public function afterCreated()
 	{
 	}
 	
-	protected function beforeUpdate()
+	public function beforeUpdate()
 	{
 	}
 	
-	protected function afterUpdated($changes = [])
+	public function afterUpdated($changes = [])
 	{
 	}
 	
-	protected function beforeDelete()
+	public function beforeDelete()
 	{
 	}
 	
-	protected function afterDeleted()
+	public function afterDeleted()
 	{
 	}
 	
-	protected function beforeRestore()
+	public function beforeRestore()
 	{
 	}
 	
-	protected function afterRestored($changes = [])
+	public function afterRestored($changes = [])
 	{
 	}
 	
-	protected function beforeForceDelete()
+	public function beforeForceDelete()
 	{
 	}
 	
-	protected function afterForceDeleted()
+	public function afterForceDeleted()
 	{
 	}
 }
