@@ -2,7 +2,6 @@
 
 namespace LDRCore\Modelling\Eloquent;
 
-use Illuminate\Database\Eloquent\Model;
 use LDRCore\Modelling\Traits\Triggable;
 
 class Builder extends \Illuminate\Database\Eloquent\Builder
