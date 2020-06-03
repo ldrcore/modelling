@@ -48,8 +48,9 @@ Allows the user to customize some uncustomizable features of the Laravel framewo
 List of allowed customizations:
 
 * Timestamp names.
+
 With this configuration the timestamp name defined on the package's config file will allow you to use your preferred name without having to add them manually
-either on the Blueprint or the Model itself.
+either on the Blueprint, unfortunately Laravel does not provide an elegant way to override the base Model, so you will still need to use the Trait on your models.
 
 ## Connection
 
