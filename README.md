@@ -41,6 +41,16 @@ For example, a Users table contains the "email" column `not null`. In every sing
 need to validate this same rule: `'email' => 'required'`. But why? this completely breaks the sense of reusability and allows a lot of mistakes.
 Using this trait you define in Model-level this rule, and into every and any operation, this rule will be validated.
 
+### Customizable
+
+Allows the user to customize some uncustomizable features of the Laravel framework regarding the model instance using the package's config file for easy to use.
+
+List of allowed customizations:
+
+* Timestamp names.
+With this configuration the timestamp name defined on the package's config file will allow you to use your preferred name without having to add them manually
+either on the Blueprint or the Model itself.
+
 ## Connection
 
 This package also provide triggers in connection level. They can be useful to control when an email must really be sent, or a resource must really be deleted from your diskj.
