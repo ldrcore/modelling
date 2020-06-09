@@ -15,7 +15,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     public function timestamps($precision = 0)
     {
         $this->timestamp(Config::get('modelling.model.timestamps.created_at'), $precision)->nullable();
-        $this->timestamp(Config::get('modelling.model.timestamps.created_at'), $precision)->nullable();
+        $this->timestamp(Config::get('modelling.model.timestamps.updated_at'), $precision)->nullable();
     }
     
     /**
@@ -27,7 +27,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     public function timestampsTz($precision = 0)
     {
         $this->timestamp(Config::get('modelling.model.timestamps.created_at'), $precision)->nullable();
-        $this->timestamp(Config::get('modelling.model.timestamps.created_at'), $precision)->nullable();
+        $this->timestamp(Config::get('modelling.model.timestamps.updated_at'), $precision)->nullable();
     }
     
     /**
@@ -37,7 +37,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
      */
     public function dropTimestamps()
     {
-        $this->dropColumn(Config::get('modelling.model.timestamps.created_at'), Config::get('modelling.model.timestamps.created_at'));
+        $this->dropColumn(Config::get('modelling.model.timestamps.created_at'), Config::get('modelling.model.timestamps.updated_at'));
     }
 
     /**
