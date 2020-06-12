@@ -55,7 +55,7 @@ The package will also provide a new Rule for "Unique" that accepts a Closure as 
 
 ```php
 protected $rules = [
-    'email' => \LDRCore\Rules\Unique('users')->ignore(function () { return $this->exists() ? $this : null; })
+    'email' => \LDRCore\Rules\Unique::table('users')->ignore(function () { return $this->exists() ? $this : null; })
 ];
 ```
 
