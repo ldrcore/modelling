@@ -41,6 +41,16 @@ For example, a Users table contains the "email" column `not null`. In every sing
 need to validate this same rule: `'email' => 'required'`. But why? this completely breaks the sense of reusability and allows a lot of mistakes.
 Using this trait you define in Model-level this rule, and into every and any operation, this rule will be validated.
 
+This trait also provides rules for each operation as "createRules", "updateRules" and "deleteRules", and permits your to define a Mutator to the rule by
+using the "get<studly attr name>AttributeRule" method, wich will receive the list of rules and the operation, and must return the updated list of rules, example:
+
+```
+public function getNameAttributeRule($rules, $operation)
+{
+   return $rules;
+}
+```
+
 ### Customizable
 
 Allows the user to customize some uncustomizable features of the Laravel framework regarding the model instance using the package's config file for easy to use.

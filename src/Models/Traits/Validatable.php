@@ -49,11 +49,24 @@ trait Validatable
 				$current = [];
 				break;
 		}
-		foreach ($current as $name => $rule) {
-			$sep = Arr::exists($base, $name) ? "|" : "";
-			$result[$name] = $rule . $sep . $base[$name] ?? "";
+		foreach ($current as $name => $rules) {
+			$rules = as_array($rules, "|");
+			$base = as_array($base[$name] ?? [], "|");
+			$result[$name] = $this->callMutateRule(
+				$name,
+				array_merge_recursive_distinct($base, $rules),
+				$operation
+			);
 		}
 		return $result;
+	}
+	
+	private function callMutateRule($name, $rules, $operation)
+	{
+		if (method_exists($this, 'get'.Str::studly($name).'AttributeRules')) {
+			return $this->{'get'.Str::studly($name).'AttributeRules'}($rules, $operation);
+		}
+		return $rules;
 	}
 	
 	public function getLabels() : array
