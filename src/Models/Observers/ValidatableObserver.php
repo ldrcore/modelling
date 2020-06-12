@@ -8,16 +8,16 @@ class ValidatableObserver
 {
 	public function saving(Model $model)
 	{
-		$model->validate();
+		$model->validate('c');
 	}
 	
 	public function updating(Model $model)
 	{
-		$model->validate();
+		$model->validate('u');
 	}
 	
 	public function deleting(Model $model)
 	{
-		$model->validate();
+		$model->validate('d');
 	}
 }

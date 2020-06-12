@@ -4,13 +4,18 @@ namespace LDRCore\Modelling\Models\Traits;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use Illuminate\Support\Str;
 use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 
 /**
  * Trait Validatable
  * @property array $rules
+ * @property array $createRules
+ * @property array $updateRules
+ * @property array $deleteRules
  * @property array $labels
  * @property array $messages
  * @package LDRCore\Modelling\Models\Traits
@@ -26,9 +31,29 @@ trait Validatable
 		}
 	}
 	
-	public function getRules() : array
+	public function getRules($operation) : array
 	{
-		return $this->rules ?? [];
+		$result = [];
+		$base = $this->rules ?? [];
+		switch (Str::lower($operation)) {
+			case 'c':
+				$current = $this->createRules ?? [];
+				break;
+			case 'u':
+				$current = $this->updateRules ?? [];
+				break;
+			case 'd':
+				$current = $this->deleteRules ?? [];
+				break;
+			default:
+				$current = [];
+				break;
+		}
+		foreach ($current as $name => $rule) {
+			$sep = Arr::exists($base, $name) ? "|" : "";
+			$result[$name] = $rule . $sep . $base[$name] ?? "";
+		}
+		return $result;
 	}
 	
 	public function getLabels() : array
@@ -52,15 +77,15 @@ trait Validatable
 		return [];
 	}
 	
-	public function getValidator(): ValidatorContract
+	public function getValidator($operation): ValidatorContract
 	{
-		return Validator::make($this->getValidationData(), $this->getRules(), $this->getMessages(), $this->getLabels());
+		return Validator::make($this->getValidationData(), $this->getRules($operation), $this->getMessages(), $this->getLabels());
 	}
 	
-	public function validate()
+	public function validate($operation = 'c')
 	{
 		$this->beforeValidate();
-		$v = $this->getValidator();
+		$v = $this->getValidator($operation);
 		$v->after(function () use ($v) {
 			$this->errors = $v->errors();
 		});
