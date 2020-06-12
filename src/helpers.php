@@ -18,3 +18,20 @@ if (!function_exists("has_trait")) {
     	return $checked[$current];
     }
 }
+
+/**
+ * Return the passed value as an array
+ * @param $value
+ * @return array
+ */
+if (!function_exists('as_array')) {
+	function as_array($value) : array
+	{
+	    if (is_array($value)) {
+	        return $value;
+	    } elseif ($value instanceof \Illuminate\Contracts\Support\Arrayable) {
+	        return $value->toArray();
+	    }
+	    return [$value];
+	}
+}
