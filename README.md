@@ -51,14 +51,6 @@ public function getNameAttributeRule($rules, $operation)
 }
 ```
 
-The package will also provide a new Rule for "Unique" that accepts a Closure as a parameter, for late processing, for example:
-
-```php
-protected $rules = [
-    'email' => \LDRCore\Rules\Unique::table('users')->ignore(function () { return $this->exists() ? $this : null; })
-];
-```
-
 ### Customizable
 
 Allows the user to customize some uncustomizable features of the Laravel framework regarding the model instance using the package's config file for easy to use.
