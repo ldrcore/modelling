@@ -49,8 +49,8 @@ trait Validatable
 				$current = [];
 				break;
 		}
-		foreach ($current as $name => $rules) {
-			$rules = as_array($rules, "|");
+		foreach (array_merge($current, $base) as $name => $nil) {
+			$rules = as_array($current[$name] ?? [], "|");
 			$baseRules = as_array($base[$name] ?? [], "|");
 			$result[$name] = $this->callMutateRule(
 				$name,
