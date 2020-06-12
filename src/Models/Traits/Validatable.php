@@ -23,14 +23,14 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 trait Validatable
 {
 	public $errors = [];
-	
+
 	public static function bootValidatable()
 	{
 		if (!has_trait((new static), Triggable::class)) {
 			static::observe(ValidatableObserver::class);
 		}
 	}
-	
+
 	public function getRules($operation) : array
 	{
 		$result = [];
@@ -51,16 +51,16 @@ trait Validatable
 		}
 		foreach ($current as $name => $rules) {
 			$rules = as_array($rules, "|");
-			$base = as_array($base[$name] ?? [], "|");
+			$baseRules = as_array($base[$name] ?? [], "|");
 			$result[$name] = $this->callMutateRule(
 				$name,
-				array_merge_recursive_distinct($base, $rules),
+				array_merge_recursive_distinct($baseRules, $rules),
 				$operation
 			);
 		}
 		return $result;
 	}
-	
+
 	private function callMutateRule($name, $rules, $operation)
 	{
 		if (method_exists($this, 'get'.Str::studly($name).'AttributeRules')) {
@@ -68,17 +68,17 @@ trait Validatable
 		}
 		return $rules;
 	}
-	
+
 	public function getLabels() : array
 	{
 		return $this->labels ?? [];
 	}
-	
+
 	public function getMessages() : array
 	{
 		return $this->messages ?? [];
 	}
-	
+
 	public function getValidationData() : array
 	{
 		if ($this instanceof Model) {
@@ -89,12 +89,12 @@ trait Validatable
 		}
 		return [];
 	}
-	
+
 	public function getValidator($operation): ValidatorContract
 	{
 		return Validator::make($this->getValidationData(), $this->getRules($operation), $this->getMessages(), $this->getLabels());
 	}
-	
+
 	public function validate($operation = 'c')
 	{
 		$this->beforeValidate();
@@ -105,11 +105,11 @@ trait Validatable
 		$v->validate();
 		$this->afterValidated($v);
 	}
-	
+
 	public function beforeValidate()
 	{
 	}
-	
+
 	public function afterValidated(ValidatorContract $validator)
 	{
 	}
