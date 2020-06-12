@@ -44,11 +44,19 @@ Using this trait you define in Model-level this rule, and into every and any ope
 This trait also provides rules for each operation as "createRules", "updateRules" and "deleteRules", and permits your to define a Mutator to the rule by
 using the "get<studly attr name>AttributeRule" method, wich will receive the list of rules and the operation, and must return the updated list of rules, example:
 
-```
+```php
 public function getNameAttributeRule($rules, $operation)
 {
    return $rules;
 }
+```
+
+The package will also provide a new Rule for "Unique" that accepts a Closure as a parameter, for late processing, for example:
+
+```php
+protected $rules = [
+    'email' => \LDRCore\Rules\Unique('users')->ignore(function () { return $this->exists() ? $this : null; })
+];
 ```
 
 ### Customizable
