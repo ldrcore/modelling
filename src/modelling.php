@@ -24,5 +24,16 @@ return [
 			'updated_at' => 'updated_at',
 			'deleted_at' => 'deleted_at'
 		]
-	]
+	],
+	/*
+    |--------------------------------------------------------------------------
+    | Database configurations
+    |--------------------------------------------------------------------------
+	|
+	| Definition for configurations related to database operations
+	|
+	*/
+	'database' => [
+		'smarty_joins' => true
+	],
 ];
