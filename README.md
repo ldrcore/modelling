@@ -76,7 +76,7 @@ List of allowed triggers:
 
 A new-and-useful function for laravel's Builder to do not duplicate unique joins, configurable through `modelling.database.smarty_joins`.
 This will allow you to put joins on queries using whatever logic you want, and if they are completely equal, the builder will not duplicate them. For example:
-<pre class="php">
+```php
 $query = MyModel::where('ative', '=', true);
 
 if ($filter1) {
@@ -87,7 +87,7 @@ if ($anotherFilter) {
    $query->join('table2', 'table2.id', '=', 'mytable.id_table2')
       ->where('table2.another_column', '=', $value);
 }
-</pre>
+```
 On raw laravel's builder, this would generate a duplicate join clause for the "table2". Using the smarty_joins, will only apply ONE join, and BOTH conditions!.
 
 ## Persistable
