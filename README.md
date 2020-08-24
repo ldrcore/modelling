@@ -27,12 +27,12 @@ List of allowed triggers:
 * afterUpdated($changes = [])
 * beforeDelete()
 * afterDeleted()
-* beforeRestore() น
-* afterRestored($changes = []) น
-* beforeForceDelete() น
-* afterForceDeleted() น
+* beforeRestore() ยน
+* afterRestored($changes = []) ยน
+* beforeForceDelete() ยน
+* afterForceDeleted() ยน
 
-น only available when using "SoftDeletes"
+ยน only available when using "SoftDeletes"
 
 ### Validatable
 
@@ -74,6 +74,22 @@ List of allowed triggers:
 * beforeRollback()
 * afterRollback()
 
+A new-and-useful function for laravel's Builder to do not duplicate unique joins, configurable through `modelling.database.smarty_joins`.
+This will allow you to put joins on queries using whatever logic you want, and if they are completely equal, the builder will not duplicate them. For example:
+<pre class="php">
+$query = MyModel::where('ative', '=', true);
+
+if ($filter1) {
+   $query->join('table2', 'table2.id', '=', 'mytable.id_table2')
+      ->where('table2.filtered', '=', $value);
+}
+if ($anotherFilter) {
+   $query->join('table2', 'table2.id', '=', 'mytable.id_table2')
+      ->where('table2.another_column', '=', $value);
+}
+</pre>
+On raw laravel's builder, this would generate a duplicate join clause for the "table2". Using the smarty_joins, will only apply ONE join, and BOTH conditions!.
+
 ## Persistable
 
 This one is a trait that allows you to quickly add "insert", "update" and "delete" to any class that you wish to control those operations, for example, in your Controller.
@@ -82,8 +98,8 @@ By adding this trait to your controller and creating a property `$model` contain
 List of methods:
 
 * insert(array $data)
-* update(array $data, $ids) น
+* update(array $data, $ids) ยน
 * updateOrInsert(array $data)
-* delete($ids) น
+* delete($ids) ยน
 
-น the `$ids` can be either a single identifier or a list of identifiers to perform a bulk operation.
+ยน the `$ids` can be either a single identifier or a list of identifiers to perform a bulk operation.
