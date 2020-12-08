@@ -5,7 +5,11 @@ namespace LDRCore\Modelling\Eloquent\Traits;
 trait Modeller
 {
 	static $mass = false;
-	
+	/**
+	 * Iterate current query as a cursor performing the operations on each record.
+	 * @param \Closure $procedure
+	 * @return int
+	 */
 	protected function iterateAsCursor(\Closure $procedure)
 	{
 		self::$mass = true;

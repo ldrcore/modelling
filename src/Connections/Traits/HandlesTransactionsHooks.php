@@ -4,13 +4,11 @@ namespace LDRCore\Modelling\Connections\Traits;
 
 trait HandlesTransactionsHooks
 {
-	private $beforeCommits = [];
-	
-	private $afterCommits = [];
-	
-	private $beforeRollbacks = [];
-	
-	private $afterRollbacks = [];
+	/**
+	 * Bag of current handlers
+	 * @var array
+	 */
+	private $handlers = [];
     /**
      * Commit the active database transaction.
      *
@@ -21,50 +19,72 @@ trait HandlesTransactionsHooks
 	public function commit()
 	{
 		if ($this->transactionLevel() == 1) {
-			$this->processHandlers($this->beforeCommits);
+			$this->processHandlers($this->handlers['bc']);
 			parent::commit();
-			$this->processHandlers($this->afterCommits);
+			$this->processHandlers($this->handlers['ac']);
 		} else {
 			parent::commit();
 		}
 	}
-	
+    /**
+     * Rollback the active database transaction.
+     *
+     * @param  int|null  $toLevel
+     * @return void
+     *
+     * @throws \Throwable
+     */
 	public function rollBack($toLevel = null)
 	{
-		if ($this->transactionLevel() == 1) {
-			$this->processHandlers($this->beforeRollbacks);
+		if ($this->transactionLevel() == 1 || $toLevel <= 1) {
+			$this->processHandlers($this->handlers['br']);
 			parent::rollBack($toLevel);
-			$this->processHandlers($this->afterRollbacks);
+			$this->processHandlers($this->handlers['ar']);
 		} else {
 			parent::rollBack($toLevel);
 		}
 	}
-	
+	/**
+	 *
+	 * @param array $list
+	 */
 	private function processHandlers(array &$list)
 	{
 		foreach ($list as $k => $closure) {
 			\call_user_func_array($closure, []);
-			unset($k);
+			unset($list[$k]);
 		}
 	}
-	
+	/**
+	 * Add a trigger to be executed before the master commit.
+	 * @param \Closure $c
+	 */
 	public final function beforeCommit(\Closure $c)
 	{
-		$this->beforeCommits[] = $c;
+		$this->handlers['bc'][] = $c;
 	}
-	
+	/**
+	 * Add a trigger to be executed after the master commit.
+	 * @param \Closure $c
+	 */
 	public final function afterCommit(\Closure $c)
 	{
-		$this->afterCommits[] = $c;
+		$this->handlers['ac'][] = $c;
 	}
-	
+	/**
+	 * Add a trigger to be executed before the master rollback.
+	 * @param \Closure $c
+	 */
 	public final function beforeRollback(\Closure $c)
 	{
-		$this->beforeRollbacks[] = $c;
+		$this->handlers['br'][] = $c;
 	}
-	
+	/**
+	 * Add a trigger to be executed after the master rollback.
+	 * @param \Closure $c
+	 */
 	public final function afterRollback(\Closure $c)
 	{
-		$this->afterRollbacks[] = $c;
+		$this->handlers['ar'][] = $c;
 	}
 }

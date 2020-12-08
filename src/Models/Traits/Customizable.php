@@ -16,7 +16,6 @@ trait Customizable
 	{
 		return Config::get('modelling.model.timestamps.created_at');
 	}
-	
     /**
      * Get the name of the "updated at" column.
      *
@@ -26,7 +25,6 @@ trait Customizable
 	{
 		return Config::get('modelling.model.timestamps.updated_at');
 	}
-	
     /**
      * Get the name of the "deleted at" column.
      *

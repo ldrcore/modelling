@@ -7,18 +7,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TriggableObserver
 {
+	/**
+	 * Listening the changes before the model is created
+	 * @param Model $model
+	 */
 	public function creating(Model $model)
 	{
 		$model->beforeCreate();
         $model->filterDatabaseArgs();
 	}
-	
+	/**
+	 * Listening the changes after the model is created
+	 * @param Model $model
+	 */
 	public function created(Model $model)
 	{
 		$model->restoreBaseArgs();
 		$model->afterCreated();
 	}
-	
+	/**
+	 * Listening the changes before the model is updated
+	 * @param Model $model
+	 */
 	public function updating(Model $model)
 	{
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
@@ -29,7 +39,10 @@ class TriggableObserver
 		$model->originals = $model->getOriginal();
         $model->filterDatabaseArgs();
 	}
-	
+	/**
+	 * Listening the changes after the model is updated
+	 * @param Model $model
+	 */
 	public function updated(Model $model)
 	{
 		$model->restoreBaseArgs();
@@ -40,7 +53,10 @@ class TriggableObserver
 			$model->afterUpdated($changes);
 		}
 	}
-	
+	/**
+	 * Listening the changes before the model is deleted
+	 * @param Model $model
+	 */
 	public function deleting(Model $model)
 	{
 		$model->beginTransaction();
@@ -55,7 +71,10 @@ class TriggableObserver
 		}
 		$model->filterDatabaseArgs();
 	}
-	
+	/**
+	 * Listening the changes after the model is deleted
+	 * @param Model $model
+	 */
 	public function deleted(Model $model)
 	{
 		if (has_trait($model, SoftDeletes::class)) {
@@ -70,7 +89,10 @@ class TriggableObserver
 		$model->restoreBaseArgs();
 		$model->commit();
 	}
-	
+	/**
+	 * Listening the changes before the model is restored
+	 * @param Model $model
+	 */
 	public function restoring(Model $model)
 	{
 		$model->restoring = true;
@@ -78,7 +100,10 @@ class TriggableObserver
 		$model->beforeRestore();
 		$model->filterDatabaseArgs();
 	}
-	
+	/**
+	 * Listening the changes after the model is restored
+	 * @param Model $model
+	 */
 	public function restored(Model $model)
 	{
 		$model->restoreBaseArgs();
@@ -86,17 +111,27 @@ class TriggableObserver
 		$model->commit();
 		$model->restoring = false;
 	}
-	
+	/**
+	 * Listening the changes before the model is saved
+	 * @param Model $model
+	 */
 	public function saving(Model $model)
 	{
 		$model->beginTransaction();
 	}
-	
+	/**
+	 * Listening the changes after the model is saved
+	 * @param Model $model
+	 */
 	public function saved(Model $model)
 	{
 		$model->commit();
 	}
-	
+	/**
+	 * Compute changes before and after the update
+	 * @param Model $model
+	 * @return array
+	 */
 	protected static function computeChanges(Model $model)
 	{
 		$changes = [];

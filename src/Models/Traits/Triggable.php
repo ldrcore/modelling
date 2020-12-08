@@ -10,7 +10,9 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 trait Triggable
 {
     public $base_attribute = [];
-    
+	/**
+	 * Boots current trait to register it's observers
+	 */
 	public static function bootTriggable()
 	{
 		static::observe(TriggableObserver::class);
@@ -19,12 +21,18 @@ trait Triggable
 			static::observe(ValidatableObserver::class);
 		}
 	}
-	
+	/**
+	 * Creater a builder instance
+	 * @param $query
+	 * @return Builder
+	 */
     public function newEloquentBuilder($query)
     {
         return new Builder($query);
     }
-	
+	/**
+	 * Filter the database columns out of the current attributes so the insert and update statements can work.
+	 */
 	public function filterDatabaseArgs()
 	{
 		$this->base_attribute = $this->attributes;
@@ -35,67 +43,102 @@ trait Triggable
 			}
 		}
 	}
-	
+	/**
+	 * Restore all the attributes filtered
+	 */
 	public function restoreBaseArgs()
 	{
 		$this->attributes = array_merge($this->attributes, $this->base_attribute);
 		unset($this->oldAttrs);
 	}
-	
+	/**
+	 * Start a transaction or add a transaction level
+	 */
 	public function beginTransaction()
     {
         $conn = $this->getConnection();
         $conn && $conn->beginTransaction();
     }
-    
+	/**
+	 * Commit the transaction or transaction level
+	 */
     public function commit()
     {
         $conn = $this->getConnection();
         $conn && $conn->commit();
     }
-    
+	/**
+	 * Rollback the transaction or transaction level
+	 */
     public function rollBack()
     {
         $conn = $this->getConnection();
         $conn && $conn->rollBack();
     }
-    
+	/**
+	 * Trigger that is executed before the model is created
+	 */
 	public function beforeCreate()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed after the model is created
+	 */
 	public function afterCreated()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed before the model is updated
+	 */
 	public function beforeUpdate()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed after the model is updated
+	 * @param array $changes List of changes applied in the update.
+	 *  E.g.: [
+	 *          'name' => [
+	 *              'old' => 'My name',
+     *              'new' => 'New name'
+	 *          ]
+	 *        ]
+	 */
 	public function afterUpdated($changes = [])
 	{
 	}
-	
+	/**
+	 * Trigger that is executed before the model is deleted
+	 */
 	public function beforeDelete()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed after the model is deleted
+	 */
 	public function afterDeleted()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed before the model is restored
+	 */
 	public function beforeRestore()
 	{
 	}
-	
-	public function afterRestored($changes = [])
+	/**
+	 * Trigger that is executed after the model is restored
+	 */
+	public function afterRestored()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed before the model is trully deleted
+	 */
 	public function beforeForceDelete()
 	{
 	}
-	
+	/**
+	 * Trigger that is executed after the model is trully deleted
+	 */
 	public function afterForceDeleted()
 	{
 	}

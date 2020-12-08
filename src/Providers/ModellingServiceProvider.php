@@ -10,20 +10,27 @@ use LDRCore\Modelling\Middlewares\HasAccess;
 class ModellingServiceProvider extends ServiceProvider
 {
 	private $configPath;
-	
+	/**
+	 * ModellingServiceProvider constructor.
+	 * @param $app
+	 */
 	public function __construct($app)
 	{
 		parent::__construct($app);
 		$this->configPath = __DIR__ . '/../modelling.php';
 	}
-	
+	/**
+	 * Register usable configurations
+	 */
 	public function register()
     {
     	$this->registerHelpers();
     	// Configuration files
 	    $this->mergeConfigFrom( $this->configPath, 'modelling' );
     }
-
+	/**
+	 * Boot all necessary operations
+	 */
     public function boot()
     {
     	// Publish our config
@@ -36,7 +43,9 @@ class ModellingServiceProvider extends ServiceProvider
         });
         
     }
-    
+	/**
+	 * Register the package's helpers
+	 */
     private function registerHelpers()
     {
     	if (is_file(__DIR__.'/../helpers.php')) {
