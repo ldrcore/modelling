@@ -11,7 +11,13 @@ trait HandlesTransactionsHooks
 	private $beforeRollbacks = [];
 	
 	private $afterRollbacks = [];
-	
+    /**
+     * Commit the active database transaction.
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
 	public function commit()
 	{
 		if ($this->transactionLevel() == 1) {
@@ -34,29 +40,30 @@ trait HandlesTransactionsHooks
 		}
 	}
 	
-	private function processHandlers(array $list)
+	private function processHandlers(array &$list)
 	{
-		foreach ($list as $closure) {
+		foreach ($list as $k => $closure) {
 			\call_user_func_array($closure, []);
+			unset($k);
 		}
 	}
 	
-	public function beforeCommit(\Closure $c)
+	public final function beforeCommit(\Closure $c)
 	{
 		$this->beforeCommits[] = $c;
 	}
 	
-	public function afterCommit(\Closure $c)
+	public final function afterCommit(\Closure $c)
 	{
 		$this->afterCommits[] = $c;
 	}
 	
-	public function beforeRollback(\Closure $c)
+	public final function beforeRollback(\Closure $c)
 	{
 		$this->beforeRollbacks[] = $c;
 	}
 	
-	public function afterRollback(\Closure $c)
+	public final function afterRollback(\Closure $c)
 	{
 		$this->afterRollbacks[] = $c;
 	}
