@@ -8,14 +8,16 @@ trait Modeller
 	/**
 	 * Iterate current query as a cursor performing the operations on each record.
 	 * @param \Closure $procedure
+	 * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
 	 * @return int
 	 */
-	protected function iterateAsCursor(\Closure $procedure)
+	protected function iterateAsCursor(\Closure $procedure, $query = null)
 	{
 		self::$mass = true;
 		$count = 0;
 		$this->getConnection()->beginTransaction();
-		foreach ((clone $this)->cursor() as $model) {
+		$query = $query ?? $this;
+		foreach ((clone $query)->cursor() as $model) {
 			if (call_user_func_array($procedure, [$model]) !== false) {
 				$count++;
 			}

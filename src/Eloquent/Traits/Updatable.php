@@ -2,6 +2,7 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
+use LDRCore\Modelling\Models\Traits\MassTrigglable;
 use LDRCore\Modelling\Models\Traits\Triggable;
 
 trait Updatable
@@ -14,7 +15,9 @@ trait Updatable
      */
 	public function update(array $values)
 	{
-		if (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		if (has_trait($this->model, MassTrigglable::class)) {
+			return $this->executeTriggers($values);
+		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
 			return $this->updateUsingModel($values);
 		}
 		return parent::update($values);
@@ -32,5 +35,17 @@ trait Updatable
 			}
 			return $model->save();
 		});
+	}
+	/**
+	 * Execute the operation using the Mass triggers
+	 * @param array $values
+	 * @return int
+	 */
+	private function executeTriggers(array $values)
+	{
+		$this->model->beforeMassUpdate($this, $values);
+		$result = parent::update($values);
+		$this->model->afterMassUpdate($this, $values);
+		return $result;
 	}
 }

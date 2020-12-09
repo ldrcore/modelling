@@ -34,6 +34,27 @@ List of allowed triggers:
 
 ¹ only available when using "SoftDeletes"
 
+### MassTriggable
+
+When you need to deal with large amount of data and still desire to use the Triggable usefullness.   
+This trait will provide you methods so you can control the data before and after it touch the database in large scale, using optimized statements for better performance.
+
+List of allowed triggers:
+
+
+* beforeMassCreate(array $values)
+* afterMassCreate(array $values)
+* beforeMassCreateUsing($query, array $values)
+* afterMassCreateUsing($query, array $values)
+* beforeMassUpdate($query, array $values)
+* afterMassUpdate($query, array $values)
+* beforeMassDelete($query)
+* afterMassDelete($query)
+* beforeMassForceDelete($query) ¹
+* afterMassForceDelete($query) ¹
+
+¹ only available when using "SoftDeletes"
+
 ### Validatable
 
 Creates a set of methods and definitions to you create system-wide validation rules for your models.
