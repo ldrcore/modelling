@@ -15,9 +15,9 @@ trait Updatable
      */
 	public function update(array $values)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassUpdate') || method_exists($this->model, 'afterMassUpdate'))) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassUpdate') || method_exists($this->model, 'afterMassUpdated'))) {
 			return $this->executeTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeUpdate') || method_exists($this->model, 'afterUpdated')) && self::$mass === false) {
 			return $this->updateUsingModel($values);
 		}
 		return parent::update($values);
@@ -45,7 +45,7 @@ trait Updatable
 	{
 		method_exists($this->model, 'beforeMassUpdate') ? $this->model->beforeMassUpdate($this, $values) : null;
 		$result = parent::update($values);
-		method_exists($this->model, 'afterMassUpdate') ? $this->model->afterMassUpdate($this, $values) : null;
+		method_exists($this->model, 'afterMassUpdated') ? $this->model->afterMassUpdated($this, $values) : null;
 		return $result;
 	}
 }

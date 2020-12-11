@@ -16,9 +16,9 @@ trait Insertable
      */
 	public function insert(array $values)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInsert'))) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInserted'))) {
 			return $this->executeInsertTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
 			return $this->insertModel($values) > 0;
 		}
 		return parent::insert($values);
@@ -32,9 +32,9 @@ trait Insertable
      */
 	public function insertGetId(array $values, $sequence = null)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInsert'))) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInserted'))) {
 			return $this->executeInsertGetIdTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
 			return $this->insertModel($values);
 		}
 		return parent::insertGetId($values, $sequence);
@@ -47,9 +47,9 @@ trait Insertable
      */
 	public function insertOrIgnore(array $values)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInsert'))) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInserted'))) {
 			return $this->executeInsertOrIgnoreTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
 			$this->insertModel($values, true);
 			return true;
 		}
@@ -66,7 +66,7 @@ trait Insertable
 	{
 		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsertUsing') || method_exists($this->model, 'afterMassInsertUsing'))) {
 			return $this->executeInsertUsingTriggers($columns, $query);
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
 			return $this->insertUsingModel($columns, $query);
 		}
 		return parent::insertUsing($columns, $query);
@@ -125,7 +125,7 @@ trait Insertable
 	{
 		method_exists($this->model, 'beforeMassInsert') ? $this->model->beforeMassInsert($values) : null;
 		$result = parent::insert($values);
-		method_exists($this->model, 'afterMassInsert') ? $this->model->afterMassInsert($values) : null;
+		method_exists($this->model, 'afterMassInserted') ? $this->model->afterMassInserted($values) : null;
 		return $result;
 	}
 	/**
@@ -137,7 +137,7 @@ trait Insertable
 	{
 		method_exists($this->model, 'beforeMassInsert') ? $this->model->beforeMassInsert($values) : null;
 		$result = parent::insertGetId($values);
-		method_exists($this->model, 'afterMassInsert') ? $this->model->afterMassInsert($values) : null;
+		method_exists($this->model, 'afterMassInserted') ? $this->model->afterMassInserted($values) : null;
 		return $result;
 	}
 	/**
@@ -149,7 +149,7 @@ trait Insertable
 	{
 		method_exists($this->model, 'beforeMassInsert') ? $this->model->beforeMassInsert($values) : null;
 		$result = parent::insertOrIgnore($values);
-		method_exists($this->model, 'afterMassInsert') ? $this->model->afterMassInsert($values) : null;
+		method_exists($this->model, 'afterMassInserted') ? $this->model->afterMassInserted($values) : null;
 		return $result;
 	}
 	/**

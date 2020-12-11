@@ -14,9 +14,9 @@ trait Deletable
      */
 	public function delete()
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassDelete') || method_exists($this->model, 'afterMassDelete'))) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassDelete') || method_exists($this->model, 'afterMassDeleted'))) {
 			return $this->executeDeleteTriggers();
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeDelete') || method_exists($this->model, 'afterDeleted')) && self::$mass === false) {
 			return $this->deleteUsingModel(false);
 		}
 		return parent::delete();
@@ -28,9 +28,9 @@ trait Deletable
      */
 	public function forceDelete()
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassForceDelete') || method_exists($this->model, 'afterMassForceDelete'))) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassForceDelete') || method_exists($this->model, 'afterMassForceDeleted'))) {
 			return $this->executeForceDeleteTriggers();
-		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
+		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeDelete') || method_exists($this->model, 'afterDeleted')) && self::$mass === false) {
 			return $this->deleteUsingModel(true);
 		}
 		return parent::forceDelete();
@@ -54,7 +54,7 @@ trait Deletable
 	{
 		method_exists($this->model, 'beforeMassDelete') ? $this->model->beforeMassDelete($this) : null;
 		$result = parent::delete();
-		method_exists($this->model, 'afterMassDelete') ? $this->model->afterMassDelete($this) : null;
+		method_exists($this->model, 'afterMassDeleted') ? $this->model->afterMassDeleted($this) : null;
 		return $result;
 	}
 	/**
@@ -65,7 +65,7 @@ trait Deletable
 	{
 		method_exists($this->model, 'beforeMassForceDelete') ? $this->model->beforeMassForceDelete($this) : null;
 		$result = parent::forceDelete();
-		method_exists($this->model, 'afterMassForceDelete') ? $this->model->afterMassForceDelete($this) : null;
+		method_exists($this->model, 'afterMassForceDeleted') ? $this->model->afterMassForceDeleted($this) : null;
 		return $result;
 	}
 }

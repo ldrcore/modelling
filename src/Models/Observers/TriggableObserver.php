@@ -13,7 +13,7 @@ class TriggableObserver
 	 */
 	public function creating(Model $model)
 	{
-		$model->beforeCreate();
+		method_exists($model, 'beforeCreate') ? $model->beforeCreate() : null;
         $model->filterDatabaseArgs();
 	}
 	/**
@@ -23,7 +23,7 @@ class TriggableObserver
 	public function created(Model $model)
 	{
 		$model->restoreBaseArgs();
-		$model->afterCreated();
+		method_exists($model, 'afterCreated') ? $model->afterCreated() : null;
 	}
 	/**
 	 * Listening the changes before the model is updated
@@ -32,9 +32,9 @@ class TriggableObserver
 	public function updating(Model $model)
 	{
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-			$model->beforeRestore();
+			method_exists($model, 'beforeRestore') ? $model->beforeRestore() : null;
 		} else {
-			$model->beforeUpdate();
+			method_exists($model, 'beforeUpdate') ? $model->beforeUpdate() : null;
 		}
 		$model->originals = $model->getOriginal();
         $model->filterDatabaseArgs();
@@ -48,9 +48,9 @@ class TriggableObserver
 		$model->restoreBaseArgs();
 		$changes = self::computeChanges($model);
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-			$model->afterRestored($changes);
+			method_exists($model, 'afterRestored') ? $model->afterRestored($changes) : null;
 		} else {
-			$model->afterUpdated($changes);
+			method_exists($model, 'afterUpdated') ? $model->afterUpdated($changes) : null;
 		}
 	}
 	/**
@@ -62,12 +62,12 @@ class TriggableObserver
 		$model->beginTransaction();
 		if (has_trait($model, SoftDeletes::class)) {
 			if ($model->forceDeleting) {
-				$model->beforeForceDelete();
+				method_exists($model, 'beforeForceDelete') ? $model->beforeForceDelete() : null;
 			} else {
-				$model->beforeDelete();
+				method_exists($model, 'beforeDelete') ? $model->beforeDelete() : null;
 			}
 		}  else {
-			$model->beforeDelete();
+			method_exists($model, 'beforeDelete') ? $model->beforeDelete() : null;
 		}
 		$model->filterDatabaseArgs();
 	}
@@ -79,12 +79,12 @@ class TriggableObserver
 	{
 		if (has_trait($model, SoftDeletes::class)) {
 			if ($model->forceDeleting) {
-				$model->afterForceDeleted();
+				method_exists($model, 'afterForceDeleted') ? $model->afterForceDeleted() : null;
 			} else {
-				$model->afterDeleted();
+				method_exists($model, 'afterDeleted') ?  $model->afterDeleted() : null;
 			}
 		} else {
-			$model->afterDeleted();
+			method_exists($model, 'afterDeleted') ?  $model->afterDeleted() : null;
 		}
 		$model->restoreBaseArgs();
 		$model->commit();
@@ -97,7 +97,7 @@ class TriggableObserver
 	{
 		$model->restoring = true;
 		$model->beginTransaction();
-		$model->beforeRestore();
+		method_exists($model, 'beforeRestore') ? $model->beforeRestore() : null;
 		$model->filterDatabaseArgs();
 	}
 	/**
@@ -107,7 +107,7 @@ class TriggableObserver
 	public function restored(Model $model)
 	{
 		$model->restoreBaseArgs();
-		$model->afterRestored();
+		method_exists($model, 'beforeRestored') ? $model->afterRestored() : null;
 		$model->commit();
 		$model->restoring = false;
 	}
