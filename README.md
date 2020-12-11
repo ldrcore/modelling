@@ -37,7 +37,10 @@ List of allowed triggers:
 ### MassTriggable
 
 When you need to deal with large amount of data and still desire to use the Triggable usefullness.   
-This trait will provide you methods so you can control the data before and after it touch the database in large scale, using optimized statements for better performance.
+This trait will provide you methods so you can control the data before and after it touch the database in large scale, using optimized statements for better performance.  
+The methods will only be used if defined, so you can define all your Models to be using this trait and only when they are defined they will be used.  
+If the methods are not present and the Model also implements the Triggable trait, a operation per-record will be used intead.  
+But if no method and no Triggable is present, then the Laravel's default actions will be used.
 
 List of allowed triggers:
 

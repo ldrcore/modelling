@@ -2,7 +2,7 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
-use LDRCore\Modelling\Models\Traits\MassTrigglable;
+use LDRCore\Modelling\Models\Traits\MassTriggable;
 use LDRCore\Modelling\Models\Traits\Triggable;
 
 trait Deletable
@@ -14,7 +14,7 @@ trait Deletable
      */
 	public function delete()
 	{
-		if (has_trait($this->model, MassTrigglable::class)) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassDelete') || method_exists($this->model, 'afterMassDelete'))) {
 			return $this->executeDeleteTriggers();
 		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
 			return $this->deleteUsingModel(false);
@@ -28,7 +28,7 @@ trait Deletable
      */
 	public function forceDelete()
 	{
-		if (has_trait($this->model, MassTrigglable::class)) {
+		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassForceDelete') || method_exists($this->model, 'afterMassForceDelete'))) {
 			return $this->executeForceDeleteTriggers();
 		} elseif (has_trait($this->model, Triggable::class) && self::$mass === false) {
 			return $this->deleteUsingModel(true);
@@ -52,9 +52,9 @@ trait Deletable
 	 */
 	private function executeDeleteTriggers()
 	{
-		$this->model->beforeMassDelete($this);
+		method_exists($this->model, 'beforeMassDelete') ? $this->model->beforeMassDelete($this) : null;
 		$result = parent::delete();
-		$this->model->afterMassDelete($this);
+		method_exists($this->model, 'afterMassDelete') ? $this->model->afterMassDelete($this) : null;
 		return $result;
 	}
 	/**
@@ -63,9 +63,9 @@ trait Deletable
 	 */
 	private function executeForceDeleteTriggers()
 	{
-		$this->model->beforeMassForceDelete($this);
+		method_exists($this->model, 'beforeMassForceDelete') ? $this->model->beforeMassForceDelete($this) : null;
 		$result = parent::forceDelete();
-		$this->model->afterMassForceDelete($this);
+		method_exists($this->model, 'afterMassForceDelete') ? $this->model->afterMassForceDelete($this) : null;
 		return $result;
 	}
 }
