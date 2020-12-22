@@ -4,9 +4,9 @@ namespace LDRCore\Modelling\Models\Traits;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Support\Str;
 use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 use LDRCore\Modelling\Models\Rules;
@@ -98,7 +98,10 @@ trait Validatable
 	{
 		if (!is_array($this->rules)){
 			try {
-				return Container::getInstance()->make($this->rules, []);
+				$obj = Container::getInstance()->make($this->rules, []);
+				if ($obj instanceof Rules) {
+					return $obj;
+				}
 			} catch (\Exception $e) {
 				// Do nothing
 			}
