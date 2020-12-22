@@ -12,7 +12,7 @@
 return [
 	/*
     |--------------------------------------------------------------------------
-    | Authentication Language Lines
+    | Model
     |--------------------------------------------------------------------------
 	|
 	| Definitions for the Model class
@@ -34,6 +34,14 @@ return [
 	|
 	*/
 	'database' => [
+		'connection' => [
+			'mysql' => \LDRCore\Modelling\Connections\MysqlConnection::class,
+		],
+		'query' => [
+			'builder' => \LDRCore\Modelling\Query\Builder::class,
+			'eloquent' => \LDRCore\Modelling\Eloquent\Builder::class,
+		],
+		'blueprint' => \LDRCore\Modelling\Eloquent\Blueprint::class,
 		'smarty_joins' => true
 	],
 ];

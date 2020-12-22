@@ -3,6 +3,7 @@
 namespace LDRCore\Modelling\Connections;
 
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Config;
 use LDRCore\Modelling\Connections\Traits\HandlesTransactionsHooks;
 use LDRCore\Modelling\Eloquent\Blueprint;
 
@@ -18,7 +19,8 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
     {
     	$builder = parent::getSchemaBuilder();
     	$builder->blueprintResolver(function ($table, $callback) {
-    		return new Blueprint($table, $callback);
+        	$class = Config::get('modelling.database.blueprint', Blueprint::class);
+    		return new $class($table, $callback);
 	    });
     	return $builder;
     }
@@ -29,8 +31,7 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
      */
     public function query()
     {
-        return new Builder(
-            $this, $this->getQueryGrammar(), $this->getPostProcessor()
-        );
+    	$class = Config::get('modeeling.database.builder.builder', Builder::class);
+        return new $class( $this, $this->getQueryGrammar(), $this->getPostProcessor() );
     }
 }

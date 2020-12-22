@@ -5,6 +5,8 @@ A package designed for those who believe that every Model is more than just a bu
 This package aims to provide basic features to use Models as true relationship entities in data persistance, 
 and some other database-like functionatilies that will improve the reusability and the trust of your application. 
 
+All of this with all base classes (Connection, Builders) being able to be extended and easily defined in the package's configuration file.
+
 ## Instalation
 
 Just a simple `composer require ldrcore/modelling` and you can use it. The package use laravel's auto-discover.
@@ -66,13 +68,19 @@ need to validate this same rule: `'email' => 'required'`. But why? this complete
 Using this trait you define in Model-level this rule, and into every and any operation, this rule will be validated.
 
 This trait also provides rules for each operation as "createRules", "updateRules" and "deleteRules", and permits your to define a Mutator to the rule by
-using the "get<studly attr name>AttributeRule" method, wich will receive the list of rules and the operation, and must return the updated list of rules, example:
+using the "get<studly attr name>AttributeRule" method, wich will receive the list of rules and the operation, and must return the updated list of rules, for example:
 
 ```php
 public function getNameAttributeRule($rules, $operation)
 {
    return $rules;
 }
+```
+
+It is also possible to define your rules in a different class, all you need is to extend the Rules abstract and define your Validatable model with the class name, for example:
+
+```php
+public $rules = \App\Models\Rules\MyModelRule::class;
 ```
 
 ### Customizable

@@ -1,6 +1,7 @@
 <?php
 
 namespace LDRCore\Modelling\Models\Traits;
+use Illuminate\Support\Facades\Config;
 use LDRCore\Modelling\Eloquent\Builder;
 
 /**
@@ -29,6 +30,7 @@ trait MassTriggable
 	 */
     public function newEloquentBuilder($query)
     {
-        return new Builder($query);
+    	$class = Config::get('modeeling.database.builder.builder', Builder::class);
+        return new $class($query);
     }
 }

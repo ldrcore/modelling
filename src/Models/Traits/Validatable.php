@@ -2,14 +2,23 @@
 
 namespace LDRCore\Modelling\Models\Traits;
 
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Support\Str;
 use LDRCore\Modelling\Models\Observers\ValidatableObserver;
+use LDRCore\Modelling\Models\Rules;
 
+/**
+ * Trait Validatable
+ * @property array|Rules $rules public Set of default rules to be applied in all operations
+ * @property array $createRules public Set of rules to be applied only when creating the instance
+ * @property array $updateRules public Set of rules to be applied only when updating the instance
+ * @property array $deleteRules public Set of rules to be applied only when deleting the instance
+ * @package LDRCore\Modelling\Models\Traits
+ */
 trait Validatable
 {
 	// -------
@@ -40,16 +49,17 @@ trait Validatable
 	public function getRules($operation) : array
 	{
 		$result = [];
-		$base = $this->rules ?? [];
+		$obj = $this->getBaseRules();
+		$base = $obj instanceof Rules ? $obj->rules() : ($this->rules ?? []);
 		switch (Str::lower($operation)) {
 			case self::$CREATED:
-				$current = $this->createRules ?? [];
+				$current = $obj instanceof Rules ? $obj->create() : ($this->createRules ?? []);
 				break;
 			case self::$UPDATED:
-				$current = $this->updateRules ?? [];
+				$current = $obj instanceof Rules ? $obj->update() : ($this->updateRules ?? []);
 				break;
 			case self::$DELETED:
-				$current = $this->deleteRules ?? [];
+				$current = $obj instanceof Rules ? $obj->delete() : ($this->deleteRules ?? []);
 				break;
 			default:
 				$current = [];
@@ -81,12 +91,29 @@ trait Validatable
 		return $rules;
 	}
 	/**
+	 * Determine if current rules will be handled in the model or a separate class
+	 * @return array|Rules
+	 */
+	private function getBaseRules()
+	{
+		if (!is_array($this->rules)){
+			try {
+				return Container::getInstance()->make($this->rules, []);
+			} catch (\Exception $e) {
+				// Do nothing
+			}
+		}
+		return $this->rules;
+	}
+	/**
 	 * Return current validation Labels
 	 * @return array
 	 */
 	public function getLabels() : array
 	{
-		return $this->labels ?? [];
+		$obj = $this->getBaseRules();
+		$base = $obj instanceof Rules ? $obj->labels() : [];
+		return array_merge_recursive_distinct($base, $this->labels ?? []);
 	}
 	/**
 	 * Return current validation Messages
@@ -94,7 +121,9 @@ trait Validatable
 	 */
 	public function getMessages() : array
 	{
-		return $this->messages ?? [];
+		$obj = $this->getBaseRules();
+		$base = $obj instanceof Rules ? $obj->messages() : [];
+		return array_merge_recursive_distinct($base, $this->messages ?? []);
 	}
 	/**
 	 * Return current validation data to perform the validations
@@ -115,7 +144,7 @@ trait Validatable
 	 * @param $operation
 	 * @return ValidatorContract
 	 */
-	public function getValidator($operation)
+	public function makeValidator($operation)
 	{
 		return Validator::make($this->getValidationData(), $this->getRules($operation), $this->getMessages(), $this->getLabels());
 	}
@@ -126,7 +155,7 @@ trait Validatable
 	public function validate($operation)
 	{
 		$this->beforeValidate();
-		$v = $this->getValidator($operation);
+		$v = $this->makeValidator($operation);
 		$v->after(function () use ($v) {
 			$this->errors = $v->errors();
 		});

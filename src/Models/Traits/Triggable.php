@@ -2,6 +2,7 @@
 
 namespace LDRCore\Modelling\Models\Traits;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use LDRCore\Modelling\Eloquent\Builder;
 use LDRCore\Modelling\Models\Observers\TriggableObserver;
@@ -51,7 +52,8 @@ trait Triggable
 	 */
     public function newEloquentBuilder($query)
     {
-        return new Builder($query);
+    	$class = Config::get('modeeling.database.builder.builder', Builder::class);
+        return new $class($query);
     }
 	/**
 	 * Filter the database columns out of the current attributes so the insert and update statements can work.

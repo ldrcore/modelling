@@ -2,10 +2,10 @@
 
 namespace LDRCore\Modelling\Providers;
 
+use Illuminate\Support\Facades\Config;
 use LDRCore\Modelling\Connections\MysqlConnection;
 use Illuminate\Database\Connection;
 use Illuminate\Support\ServiceProvider;
-use LDRCore\Modelling\Middlewares\HasAccess;
 
 class ModellingServiceProvider extends ServiceProvider
 {
@@ -39,9 +39,9 @@ class ModellingServiceProvider extends ServiceProvider
         ]);
         // Connections
         Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config) {
-            return new MysqlConnection($connection, $database, $prefix, $config);
+        	$class = Config::get('modelling.database.connection.mysql', MysqlConnection::class);
+            return new $class($connection, $database, $prefix, $config);
         });
-        
     }
 	/**
 	 * Register the package's helpers
