@@ -25,7 +25,13 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
  * @method beforeDelete() Trigger that is executed before the model is deleted
  * @method afterDeleted() Trigger that is executed after the model is deleted
  * @method beforeRestore() Trigger that is executed before the model is restored
- * @method afterRestored() Trigger that is executed after the model is restored
+ * @method afterRestored() Trigger that is executed after the model is restored with a list of changes applied in the update
+ *    E.g.: [
+ *             'name' => [
+ *                'old' => 'My name',
+ *                'new' => 'New name'
+ *           ]
+ *        ]
  * @method beforeForceDelete() Trigger that is executed before the model is trully deleted
  * @method afterForceDeleted() Trigger that is executed after the model is trully deleted
  *
@@ -39,11 +45,32 @@ trait Triggable
 	 */
 	public static function bootTriggable()
 	{
-		static::observe(TriggableObserver::class);
+		self::initObserver();
 		// Dispatch Validation always AFTER our own observer.
 		if (has_trait(new static, Validatable::class)) {
 			static::observe(ValidatableObserver::class);
 		}
+	}
+	/**
+	 * Initialize the observer for the trait
+	 * @throws \Exception
+	 */
+	private static function initObserver()
+	{
+		$className = self::getObserverClass();
+		$obj = new $className;
+		if (!($obj instanceof TriggableObserver)) {
+			throw new \Exception("Observer class must be an instance of TriggableObserver.");
+		}
+		static::observe($className);
+	}
+	/**
+	 * Get the Observer class to be used
+	 * @return string
+	 */
+	public static function getObserverClass() : string
+	{
+		return TriggableObserver::class;
 	}
 	/**
 	 * Creater a builder instance
@@ -52,7 +79,7 @@ trait Triggable
 	 */
     public function newEloquentBuilder($query)
     {
-    	$class = Config::get('modeeling.database.builder.builder', Builder::class);
+    	$class = Config::get('modeling.database.builder.builder', Builder::class);
         return new $class($query);
     }
 	/**

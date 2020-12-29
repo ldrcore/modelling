@@ -5,15 +5,58 @@ namespace LDRCore\Modelling\Models\Observers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Class TriggableObserver
+ * Manage and Provides usability to Model classes to perform actions before and after database alterations
+ *
+ * @method beforeCreate(Model $model) Trigger that is executed before the model is created
+ * @method afterCreated(Model $model) Trigger that is executed after the model is created
+ * @method beforeUpdate(Model $model) Trigger that is executed before the model is updated
+ * @method afterUpdated(Model $model, $changes = []) Trigger that is executed after the model is updated with a list of changes applied in the update
+ *    E.g.: [
+ *             'name' => [
+ *                'old' => 'My name',
+ *                'new' => 'New name'
+ *           ]
+ *        ]
+ * @method beforeDelete(Model $model) Trigger that is executed before the model is deleted
+ * @method afterDeleted(Model $model) Trigger that is executed after the model is deleted
+ * @method beforeRestore(Model $model) Trigger that is executed before the model is restored
+ * @method afterRestored(Model $model, $changes = []) Trigger that is executed after the model is restored with a list of changes applied in the update
+ *    E.g.: [
+ *             'name' => [
+ *                'old' => 'My name',
+ *                'new' => 'New name'
+ *           ]
+ *        ]
+ * @method beforeForceDelete(Model $model) Trigger that is executed before the model is trully deleted
+ * @method afterForceDeleted(Model $model) Trigger that is executed after the model is trully deleted
+ *
+ * @package LDRCore\Modelling\Models\Observers
+ */
 class TriggableObserver
 {
+	/**
+	 * Call the method based on it's existance
+	 * @param $model
+	 * @param $method
+	 * @param array $changes
+	 */
+	private function callHandler($model, $method, $changes = [])
+	{
+		if (method_exists($model, $method)) {
+			$model->{$method}($changes);
+		} elseif (method_exists($this, $method)) {
+			$this->{$method}($model, $changes);
+		}
+	}
 	/**
 	 * Listening the changes before the model is created
 	 * @param Model $model
 	 */
 	public function creating(Model $model)
 	{
-		method_exists($model, 'beforeCreate') ? $model->beforeCreate() : null;
+		$this->callHandler($model, 'beforeCreate');
         $model->filterDatabaseArgs();
 	}
 	/**
@@ -23,7 +66,7 @@ class TriggableObserver
 	public function created(Model $model)
 	{
 		$model->restoreBaseArgs();
-		method_exists($model, 'afterCreated') ? $model->afterCreated() : null;
+		$this->callHandler($model, 'afterCreated');
 	}
 	/**
 	 * Listening the changes before the model is updated
@@ -32,9 +75,9 @@ class TriggableObserver
 	public function updating(Model $model)
 	{
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-			method_exists($model, 'beforeRestore') ? $model->beforeRestore() : null;
+			$this->callHandler($model, 'beforeRestore');
 		} else {
-			method_exists($model, 'beforeUpdate') ? $model->beforeUpdate() : null;
+			$this->callHandler($model, 'beforeUpdate');
 		}
 		$model->originals = $model->getOriginal();
         $model->filterDatabaseArgs();
@@ -48,9 +91,9 @@ class TriggableObserver
 		$model->restoreBaseArgs();
 		$changes = self::computeChanges($model);
 		if (has_trait($model, SoftDeletes::class) && $model->restoring) {
-			method_exists($model, 'afterRestored') ? $model->afterRestored($changes) : null;
+			$this->callHandler($model, 'afterRestored', $changes);
 		} else {
-			method_exists($model, 'afterUpdated') ? $model->afterUpdated($changes) : null;
+			$this->callHandler($model, 'afterUpdated', $changes);
 		}
 	}
 	/**
@@ -62,12 +105,12 @@ class TriggableObserver
 		$model->beginTransaction();
 		if (has_trait($model, SoftDeletes::class)) {
 			if ($model->forceDeleting) {
-				method_exists($model, 'beforeForceDelete') ? $model->beforeForceDelete() : null;
+				$this->callHandler($model, 'beforeForceDelete');
 			} else {
-				method_exists($model, 'beforeDelete') ? $model->beforeDelete() : null;
+				$this->callHandler($model, 'beforeDelete');
 			}
 		}  else {
-			method_exists($model, 'beforeDelete') ? $model->beforeDelete() : null;
+			$this->callHandler($model, 'beforeDelete');
 		}
 		$model->filterDatabaseArgs();
 	}
@@ -79,12 +122,12 @@ class TriggableObserver
 	{
 		if (has_trait($model, SoftDeletes::class)) {
 			if ($model->forceDeleting) {
-				method_exists($model, 'afterForceDeleted') ? $model->afterForceDeleted() : null;
+				$this->callHandler($model, 'afterForceDeleted');
 			} else {
-				method_exists($model, 'afterDeleted') ?  $model->afterDeleted() : null;
+				$this->callHandler($model, 'afterDeleted');
 			}
 		} else {
-			method_exists($model, 'afterDeleted') ?  $model->afterDeleted() : null;
+			$this->callHandler($model, 'afterDeleted');
 		}
 		$model->restoreBaseArgs();
 		$model->commit();
@@ -96,9 +139,6 @@ class TriggableObserver
 	public function restoring(Model $model)
 	{
 		$model->restoring = true;
-		$model->beginTransaction();
-		method_exists($model, 'beforeRestore') ? $model->beforeRestore() : null;
-		$model->filterDatabaseArgs();
 	}
 	/**
 	 * Listening the changes after the model is restored
@@ -106,9 +146,6 @@ class TriggableObserver
 	 */
 	public function restored(Model $model)
 	{
-		$model->restoreBaseArgs();
-		method_exists($model, 'beforeRestored') ? $model->afterRestored() : null;
-		$model->commit();
 		$model->restoring = false;
 	}
 	/**

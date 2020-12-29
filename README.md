@@ -20,6 +20,7 @@ The Models can use our traits for extended functionality. Turn them more than ju
 Creates a lot of hooks that serve as the already-existing database triggers. 
 Using those triggers in application level instead of database level allows you more powerful control over code updates.
 The triggers are self-explanatory by their own, but in case you don't feel comfortable, just check out the source.
+This triggers can be created within the Model or an Observer, when using in the Observer you *MUST* extend the `TriggableObserver` class.
 
 List of allowed triggers:
 

@@ -30,7 +30,7 @@ trait MassTriggable
 	 */
     public function newEloquentBuilder($query)
     {
-    	$class = Config::get('modeeling.database.builder.builder', Builder::class);
+    	$class = Config::get('modeling.database.builder.builder', Builder::class);
         return new $class($query);
     }
 }
