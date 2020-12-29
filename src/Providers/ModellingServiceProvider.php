@@ -2,10 +2,11 @@
 
 namespace LDRCore\Modelling\Providers;
 
-use Illuminate\Support\Facades\Config;
-use LDRCore\Modelling\Connections\MysqlConnection;
 use Illuminate\Database\Connection;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
+use LDRCore\Modelling\Connections\MysqlConnection;
+use LDRCore\Modelling\Console\Command\ObserverMakeCommand;
 
 class ModellingServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,12 @@ class ModellingServiceProvider extends ServiceProvider
 	 */
     public function boot()
     {
+    	// Register commands
+	    if ($this->app->runningInConsole()) {
+	        $this->commands([
+	            ObserverMakeCommand::class,
+	        ]);
+	    }
     	// Publish our config
         $this->publishes([
         	$this->configPath => $this->app->configPath('modelling.php')

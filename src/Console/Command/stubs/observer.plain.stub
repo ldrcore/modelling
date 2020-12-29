@@ -1,0 +1,10 @@
+<?php
+
+namespace DummyNamespace;
+
+use LDRCore\Modelling\Models\Observers\TriggableObserver;
+
+class DummyClass extends TriggableObserver
+{
+    //
+}

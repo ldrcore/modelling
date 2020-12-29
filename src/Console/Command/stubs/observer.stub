@@ -1,0 +1,112 @@
+<?php
+
+namespace DummyNamespace;
+
+use LDRCore\Modelling\Models\Observers\TriggableObserver;
+use NamespacedDummyModel;
+
+class DummyClass extends TriggableObserver
+{
+    /**
+     * Handle the DocDummyModel "beforeCreate" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function beforeCreate(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "afterCreate" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function afterCreated(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "beforeUpdate" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function beforeUpdate(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "afterUpdated" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @param array $changes
+     * @return void
+     */
+    public function afterUpdated(DummyModel $dummyModel, $changes = [])
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "beforeDelete" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function beforeDelete(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "afterDeleted" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function afterDeleted(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "beforeForceDelete" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function beforeForceDelete(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "afterForceDeleted" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function afterForceDeleted(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "restored" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @return void
+     */
+    public function beforeRestore(DummyModel $dummyModel)
+    {
+        //
+    }
+    /**
+     * Handle the DocDummyModel "force deleted" event.
+     *
+     * @param  \NamespacedDummyModel  $dummyModel
+     * @param array $changes
+     * @return void
+     */
+    public function afterRestored(DummyModel $dummyModel, $changes = [])
+    {
+        //
+    }
+}
