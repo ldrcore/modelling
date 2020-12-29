@@ -52,6 +52,24 @@ trait Triggable
 		}
 	}
 	/**
+	 * Initialize trait's observer events.
+	 */
+	public function initializeTriggable()
+	{
+		$this->addObservableEvents([
+			'beforeCreate',
+			'afterCreated',
+			'beforeUpdate',
+			'afterUpdated',
+			'beforeDelete',
+			'afterDeleted',
+			'beforeForceDelete',
+			'afterForceDeleted',
+			'beforeRestore',
+			'afterRestored',
+		]);
+	}
+	/**
 	 * Initialize the observer for the trait
 	 * @throws \Exception
 	 */

@@ -12,23 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method beforeCreate(Model $model) Trigger that is executed before the model is created
  * @method afterCreated(Model $model) Trigger that is executed after the model is created
  * @method beforeUpdate(Model $model) Trigger that is executed before the model is updated
- * @method afterUpdated(Model $model, $changes = []) Trigger that is executed after the model is updated with a list of changes applied in the update
- *    E.g.: [
- *             'name' => [
- *                'old' => 'My name',
- *                'new' => 'New name'
- *           ]
- *        ]
+ * @method afterUpdated(Model $model) Trigger that is executed after the model is updated. The changes are acessible with $model->_changes property.
  * @method beforeDelete(Model $model) Trigger that is executed before the model is deleted
  * @method afterDeleted(Model $model) Trigger that is executed after the model is deleted
  * @method beforeRestore(Model $model) Trigger that is executed before the model is restored
- * @method afterRestored(Model $model, $changes = []) Trigger that is executed after the model is restored with a list of changes applied in the update
- *    E.g.: [
- *             'name' => [
- *                'old' => 'My name',
- *                'new' => 'New name'
- *           ]
- *        ]
+ * @method afterRestored(Model $model) Trigger that is executed after the model is restored. The changes are acessible with $model->_changes property.
  * @method beforeForceDelete(Model $model) Trigger that is executed before the model is trully deleted
  * @method afterForceDeleted(Model $model) Trigger that is executed after the model is trully deleted
  *
@@ -42,12 +30,15 @@ class TriggableObserver
 	 * @param $method
 	 * @param array $changes
 	 */
-	private function callHandler($model, $method, $changes = [])
+	private function callHandler(Model $model, $method, $changes = [])
 	{
 		if (method_exists($model, $method)) {
 			$model->{$method}($changes);
-		} elseif (method_exists($this, $method)) {
-			$this->{$method}($model, $changes);
+		} else {
+			if (!empty($changes)) {
+				$model->_changes = $changes;
+			}
+			$model->fireModelEvent($method, false);
 		}
 	}
 	/**
