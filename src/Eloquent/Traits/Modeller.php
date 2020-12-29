@@ -2,6 +2,9 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
+use LDRCore\Modelling\Models\Traits\MassTriggable;
+use LDRCore\Modelling\Models\Traits\Triggable;
+
 trait Modeller
 {
 	static $mass = false;
@@ -25,5 +28,35 @@ trait Modeller
 		$this->getConnection()->commit();
 		self::$mass = false;
 		return $count;
+	}
+	
+	protected function hasMassTriggableMethod($methods = [])
+	{
+		if (has_trait($this->model, MassTriggable::class)) {
+			foreach ($methods as $name) {
+				if (method_exists($this->model, $name)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	protected function hasTriggableMethod($methods = [])
+	{
+		if (has_trait($this->model, Triggable::class)) {
+			foreach ($methods as $name) {
+				if (method_exists($this->model, $name)) {
+					return true;
+				}
+			}
+			$observer = new $this->model->getObserverClass();
+			foreach ($methods as $name) {
+				if (method_exists($observer, $name)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

@@ -49,9 +49,9 @@ List of allowed triggers:
 
 
 * beforeMassCreate(array $values)
-* afterMassCreate(array $values)
+* afterMassCreated(array $values)
 * beforeMassCreateUsing($query, array $values)
-* afterMassCreateUsing($query, array $values)
+* afterMassCreatedUsing($query, array $values)
 * beforeMassUpdate($query, array $values)
 * afterMassUpdated($query, array $values)
 * beforeMassDelete($query)

@@ -2,9 +2,6 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
-use LDRCore\Modelling\Models\Traits\MassTriggable;
-use LDRCore\Modelling\Models\Traits\Triggable;
-
 trait Deletable
 {
 	use Modeller;
@@ -14,9 +11,9 @@ trait Deletable
      */
 	public function delete()
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassDelete') || method_exists($this->model, 'afterMassDeleted'))) {
+		if ($this->hasMassTriggableMethod(['beforeMassDelete', 'afterMassDeleted'])) {
 			return $this->executeDeleteTriggers();
-		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeDelete') || method_exists($this->model, 'afterDeleted')) && self::$mass === false) {
+		} elseif ($this->hasTriggableMethod(['beforeDelete', 'afterDeleted']) && self::$mass === false) {
 			return $this->deleteUsingModel(false);
 		}
 		return parent::delete();
@@ -28,9 +25,9 @@ trait Deletable
      */
 	public function forceDelete()
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassForceDelete') || method_exists($this->model, 'afterMassForceDeleted'))) {
+		if ($this->hasMassTriggableMethod(['beforeMassForceDelete', 'afterMassForceDeleted'])) {
 			return $this->executeForceDeleteTriggers();
-		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeDelete') || method_exists($this->model, 'afterDeleted')) && self::$mass === false) {
+		} elseif ($this->hasTriggableMethod(['beforeForceDelete', 'afterForceDeleted']) && self::$mass === false) {
 			return $this->deleteUsingModel(true);
 		}
 		return parent::forceDelete();

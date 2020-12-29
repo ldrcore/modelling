@@ -2,12 +2,10 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
-use LDRCore\Modelling\Models\Traits\MassTriggable;
-use LDRCore\Modelling\Models\Traits\Triggable;
-
 trait Insertable
 {
 	use Modeller;
+	
     /**
      * Insert a new record into the database.
      *
@@ -16,9 +14,9 @@ trait Insertable
      */
 	public function insert(array $values)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInserted'))) {
+		if ($this->hasMassTriggableMethod(['beforeMassCreate', 'afterMassCreated'])) {
 			return $this->executeInsertTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
+		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			return $this->insertModel($values) > 0;
 		}
 		return parent::insert($values);
@@ -32,9 +30,9 @@ trait Insertable
      */
 	public function insertGetId(array $values, $sequence = null)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInserted'))) {
+		if ($this->hasMassTriggableMethod(['beforeMassCreate', 'afterMassCreated'])) {
 			return $this->executeInsertGetIdTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
+		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			return $this->insertModel($values);
 		}
 		return parent::insertGetId($values, $sequence);
@@ -47,9 +45,9 @@ trait Insertable
      */
 	public function insertOrIgnore(array $values)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsert') || method_exists($this->model, 'afterMassInserted'))) {
+		if ($this->hasMassTriggableMethod(['beforeMassCreate', 'afterMassCreated'])) {
 			return $this->executeInsertOrIgnoreTriggers($values);
-		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
+		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			$this->insertModel($values, true);
 			return true;
 		}
@@ -64,9 +62,9 @@ trait Insertable
      */
 	public function insertUsing(array $columns, $query)
 	{
-		if (has_trait($this->model, MassTriggable::class) && (method_exists($this->model, 'beforeMassInsertUsing') || method_exists($this->model, 'afterMassInsertUsing'))) {
+		if ($this->hasMassTriggableMethod(['beforeMassCreateUsing', 'afterMassCreatedUsing'])) {
 			return $this->executeInsertUsingTriggers($columns, $query);
-		} elseif (has_trait($this->model, Triggable::class) && (method_exists($this->model, 'beforeCreate') || method_exists($this->model, 'afterCreated')) && self::$mass === false) {
+		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			return $this->insertUsingModel($columns, $query);
 		}
 		return parent::insertUsing($columns, $query);
@@ -123,9 +121,9 @@ trait Insertable
 	 */
 	private function executeInsertTriggers(array $values)
 	{
-		method_exists($this->model, 'beforeMassInsert') ? $this->model->beforeMassInsert($values) : null;
+		method_exists($this->model, 'beforeMassCreate') ? $this->model->beforeMassCreate($values) : null;
 		$result = parent::insert($values);
-		method_exists($this->model, 'afterMassInserted') ? $this->model->afterMassInserted($values) : null;
+		method_exists($this->model, 'afterMassCreated') ? $this->model->afterMassCreated($values) : null;
 		return $result;
 	}
 	/**
@@ -135,9 +133,9 @@ trait Insertable
 	 */
 	private function executeInsertGetIdTriggers(array $values)
 	{
-		method_exists($this->model, 'beforeMassInsert') ? $this->model->beforeMassInsert($values) : null;
+		method_exists($this->model, 'beforeMassCreate') ? $this->model->beforeMassCreate($values) : null;
 		$result = parent::insertGetId($values);
-		method_exists($this->model, 'afterMassInserted') ? $this->model->afterMassInserted($values) : null;
+		method_exists($this->model, 'afterMassCreated') ? $this->model->afterMassCreated($values) : null;
 		return $result;
 	}
 	/**
@@ -147,9 +145,9 @@ trait Insertable
 	 */
 	private function executeinsertOrIgnoreTriggers(array $values)
 	{
-		method_exists($this->model, 'beforeMassInsert') ? $this->model->beforeMassInsert($values) : null;
+		method_exists($this->model, 'beforeMassCreate') ? $this->model->beforeMassCreate($values) : null;
 		$result = parent::insertOrIgnore($values);
-		method_exists($this->model, 'afterMassInserted') ? $this->model->afterMassInserted($values) : null;
+		method_exists($this->model, 'afterMassCreated') ? $this->model->afterMassCreated($values) : null;
 		return $result;
 	}
 	/**
@@ -159,9 +157,9 @@ trait Insertable
 	 */
 	private function executeInsertUsingTriggers(array $columns, $query)
 	{
-		method_exists($this->model, 'beforeMassInsertUsing') ? $this->model->beforeMassInsertUsing($query, $columns) : null;
+		method_exists($this->model, 'beforeMassCreateUsing') ? $this->model->beforeMassCreateUsing($query, $columns) : null;
 		$result = parent::insertUsing($columns, $query);
-		method_exists($this->model, 'afterMassInsertUsing') ? $this->model->afterMassInsertUsing($query, $columns) : null;
+		method_exists($this->model, 'afterMassCreatedUsing') ? $this->model->afterMassCreatedUsing($query, $columns) : null;
 		return $result;
 	}
 }
