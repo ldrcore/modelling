@@ -37,7 +37,11 @@ trait Modeller
 	protected function hasMassTriggableMethod($methods = [])
 	{
 		if (has_trait($this->model, MassTriggable::class)) {
-			return $this->hasMethod($methods);
+			foreach ($methods as $name) {
+				if (method_exists($this->model, $name)) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -49,20 +53,10 @@ trait Modeller
 	protected function hasTriggableMethod($methods = [])
 	{
 		if (has_trait($this->model, Triggable::class)) {
-			return $this->hasMethod($methods);
-		}
-		return false;
-	}
-	/**
-	 * Iterate and validate if current model contains any way to call the identified methods
-	 * @param array $methods
-	 * @return bool
-	 */
-	protected function hasMethod($methods = [])
-	{
-		foreach ($methods as $name) {
-			if (method_exists($this->model, $name) || $this->model->hasRegisteredEvent($methods)) {
-				return true;
+			foreach ($methods as $name) {
+				if (method_exists($this->model, $name) || $this->model->hasRegisteredEvent($methods)) {
+					return true;
+				}
 			}
 		}
 		return false;
