@@ -2,7 +2,6 @@
 
 namespace LDRCore\Modelling\Models\Traits;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use LDRCore\Modelling\Eloquent\Builder;
@@ -98,7 +97,10 @@ trait Triggable
 	 */
 	public function hasRegistedEvent($method) : bool
 	{
-		return Arr::exists($this->dispatchesEvents ?? [], $method);
+		if ($dispatcher = $this->getEventDispatcher()) {
+			return $dispatcher->hasListeners($method);
+		}
+		return false;
 	}
 	/**
 	 * Creater a builder instance
