@@ -25,7 +25,7 @@ use LDRCore\Modelling\Models\Observers\ValidatableObserver;
  * @method beforeDelete() Trigger that is executed before the model is deleted
  * @method afterDeleted() Trigger that is executed after the model is deleted
  * @method beforeRestore() Trigger that is executed before the model is restored
- * @method afterRestored() Trigger that is executed after the model is restored with a list of changes applied in the update
+ * @method afterRestored($changes = []) Trigger that is executed after the model is restored with a list of changes applied in the update
  *    E.g.: [
  *             'name' => [
  *                'old' => 'My name',
