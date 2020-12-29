@@ -1,6 +1,7 @@
 <?php
 
 namespace LDRCore\Modelling\Models\Traits;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use LDRCore\Modelling\Eloquent\Builder;
 
@@ -33,4 +34,31 @@ trait MassTriggable
     	$class = Config::get('modeling.database.builder.builder', Builder::class);
         return new $class($query);
     }
+	/**
+	 * Initialize trait's observer events.
+	 */
+	public function initializeMassTriggable()
+	{
+		$this->addObservableEvents([
+			'beforeMassCreate',
+			'afterMassCreated',
+			'beforeMassCreateUsing',
+			'afterMassCreatedUsing',
+			'beforeMassUpdate',
+			'afterMassUpdated',
+			'beforeMassDelete',
+			'afterMassDeleted',
+			'beforeMassForceDelete',
+			'afterMassForceDeleted',
+		]);
+	}
+	/**
+	 * Determine if current instance has registered the event
+	 * @param $method
+	 * @return bool
+	 */
+	public function hasRegistedEvent($method) : bool
+	{
+		return Arr::exists($this->dispatchesEvents ?? [], $method);
+	}
 }

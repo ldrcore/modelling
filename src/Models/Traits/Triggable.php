@@ -2,6 +2,7 @@
 
 namespace LDRCore\Modelling\Models\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use LDRCore\Modelling\Eloquent\Builder;
@@ -89,6 +90,15 @@ trait Triggable
 	public static function getObserverClass() : string
 	{
 		return TriggableObserver::class;
+	}
+	/**
+	 * Determine if current instance has registered the event
+	 * @param $method
+	 * @return bool
+	 */
+	public function hasRegistedEvent($method) : bool
+	{
+		return Arr::exists($this->dispatchesEvents ?? [], $method);
 	}
 	/**
 	 * Creater a builder instance
