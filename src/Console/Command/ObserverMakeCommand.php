@@ -2,7 +2,7 @@
 
 namespace LDRCore\Modelling\Console\Command;
 
-class ObserverMakeCommand extends \Illuminate\Console\ObserverMakeCommand
+class ObserverMakeCommand extends \Illuminate\Foundation\Console\ObserverMakeCommand
 {
     /**
      * The console command description.
