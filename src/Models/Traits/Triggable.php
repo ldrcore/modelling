@@ -95,7 +95,7 @@ trait Triggable
 	 * @param $method
 	 * @return bool
 	 */
-	public function hasRegistedEvent($method) : bool
+	public function hasRegisteredEvent($method) : bool
 	{
 		if ($dispatcher = $this->getEventDispatcher()) {
 			return $dispatcher->hasListeners($method);
