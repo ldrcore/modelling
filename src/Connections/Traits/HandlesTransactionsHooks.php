@@ -45,14 +45,15 @@ trait HandlesTransactionsHooks
 		}
 	}
 	/**
-	 *
-	 * @param array $list
+	 * @param null|array $list
 	 */
-	private function processHandlers(array &$list)
+	private function processHandlers(?array &$list)
 	{
-		foreach ($list as $k => $closure) {
-			\call_user_func_array($closure, []);
-			unset($list[$k]);
+		if (is_array($list)) {
+			foreach ($list as $k => $closure) {
+				\call_user_func_array($closure, []);
+				unset($list[$k]);
+			}
 		}
 	}
 	/**
