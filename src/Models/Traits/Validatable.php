@@ -116,7 +116,8 @@ trait Validatable
 	{
 		$obj = $this->getBaseRules();
 		$base = $obj instanceof Rules ? $obj->labels() : [];
-		return array_merge_recursive_distinct($base, $this->labels ?? []);
+		$labels = $this->labels ?? [];
+		return array_merge_recursive_distinct($base, $labels);
 	}
 	/**
 	 * Return current validation Messages
@@ -126,7 +127,8 @@ trait Validatable
 	{
 		$obj = $this->getBaseRules();
 		$base = $obj instanceof Rules ? $obj->messages() : [];
-		return array_merge_recursive_distinct($base, $this->messages ?? []);
+		$messages = $this->messages ?? [];
+		return array_merge_recursive_distinct($base, $messages);
 	}
 	/**
 	 * Return current validation data to perform the validations
