@@ -65,11 +65,11 @@ trait HandlesTransactionsHooks
 	}
 	/**
 	 * Add a trigger to be executed after the master commit.
-	 * @param \Closure $c
+	 * @param \Closure $callback
 	 */
-	public final function afterCommit(\Closure $c)
+	public final function afterCommit($callback)
 	{
-		$this->handlers['ac'][] = $c;
+		$this->handlers['ac'][] = $callback;
 	}
 	/**
 	 * Add a trigger to be executed before the master rollback.
