@@ -8,7 +8,12 @@ trait HandlesTransactionsHooks
 	 * Bag of current handlers
 	 * @var array
 	 */
-	private $handlers = [];
+	private $handlers = [
+		'bc' => [],
+		'ac' => [],
+		'br' => [],
+		'ar' => [],
+	];
     /**
      * Commit the active database transaction.
      *
@@ -45,24 +50,22 @@ trait HandlesTransactionsHooks
 		}
 	}
 	/**
-	 * @param null|array $list
+	 * @param array $list
 	 */
-	private function processHandlers(?array &$list)
+	private function processHandlers(array &$list)
 	{
-		if (is_array($list)) {
-			foreach ($list as $k => $closure) {
-				\call_user_func_array($closure, []);
-				unset($list[$k]);
-			}
+		foreach ($list as $k => $closure) {
+			\call_user_func_array($closure, []);
+			unset($list[$k]);
 		}
 	}
 	/**
 	 * Add a trigger to be executed before the master commit.
-	 * @param \Closure $c
+	 * @param \Closure $callback
 	 */
-	public final function beforeCommit(\Closure $c)
+	public final function beforeCommit($callback)
 	{
-		$this->handlers['bc'][] = $c;
+		$this->handlers['bc'][] = $callback;
 	}
 	/**
 	 * Add a trigger to be executed after the master commit.
@@ -74,18 +77,18 @@ trait HandlesTransactionsHooks
 	}
 	/**
 	 * Add a trigger to be executed before the master rollback.
-	 * @param \Closure $c
+	 * @param \Closure $callback
 	 */
-	public final function beforeRollback(\Closure $c)
+	public final function beforeRollback($callback)
 	{
-		$this->handlers['br'][] = $c;
+		$this->handlers['br'][] = $callback;
 	}
 	/**
 	 * Add a trigger to be executed after the master rollback.
-	 * @param \Closure $c
+	 * @param \Closure $callback
 	 */
-	public final function afterRollback(\Closure $c)
+	public final function afterRollback($callback)
 	{
-		$this->handlers['ar'][] = $c;
+		$this->handlers['ar'][] = $callback;
 	}
 }
