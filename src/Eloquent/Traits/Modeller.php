@@ -54,7 +54,7 @@ trait Modeller
 	{
 		if (has_trait($this->model, Triggable::class)) {
 			foreach ($methods as $name) {
-				if (method_exists($this->model, $name) || $this->model->hasRegisteredEvent($methods)) {
+				if (method_exists($this->model, $name) || $this->model->hasRegisteredEvent($name)) {
 					return true;
 				}
 			}
