@@ -38,7 +38,11 @@ class TriggableObserver
 			if (!empty($changes)) {
 				$model->_changes = $changes;
 			}
-			$model->fireModelEvent($method, false);
+			try {
+				$model->fireModelEvent($method, false);
+			} catch (\BadMethodCallException $e) {
+				// Ignore unregistered events.
+			}
 		}
 	}
 	/**
