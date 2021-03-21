@@ -71,7 +71,17 @@ trait Modeller
 	protected function validate(array $values, $operation, $ignore = false)
     {
         try {
-            $this->model->massValidate($values, $operation);
+            if (isset($values[0])) {
+                $this->model->massValidate($values, $operation);
+            } else {
+                $model = new $this->model;
+                if ($key = $values[$this->model->getKeyName()] ?? false) {
+                    $model->find($key);
+                }
+                $model->fill($values);
+                $model->validate($operation);
+                unset($model);
+            }
         } catch (ValidationException $v) {
             if (!$ignore) {
                 throw $v;
