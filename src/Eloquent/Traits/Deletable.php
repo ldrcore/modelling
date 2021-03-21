@@ -2,6 +2,8 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
+use LDRCore\Modelling\Models\Traits\Validatable;
+
 trait Deletable
 {
 	use Modeller;
@@ -12,10 +14,16 @@ trait Deletable
 	public function delete()
 	{
 		if ($this->hasMassTriggableMethod(['beforeMassDelete', 'afterMassDeleted'])) {
+            if (has_trait($this->model, Validatable::class)) {
+                $this->validate($values, Validatable::$DELETED);
+            }
 			return $this->executeDeleteTriggers();
 		} elseif ($this->hasTriggableMethod(['beforeDelete', 'afterDeleted']) && self::$mass === false) {
 			return $this->deleteUsingModel(false);
 		}
+        if (has_trait($this->model, Validatable::class)) {
+            $this->validate($values, Validatable::$DELETED);
+        }
 		return parent::delete();
 	}
     /**

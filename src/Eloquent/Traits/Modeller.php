@@ -2,6 +2,8 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use LDRCore\Modelling\Models\Traits\MassTriggable;
 use LDRCore\Modelling\Models\Traits\Triggable;
 
@@ -61,4 +63,24 @@ trait Modeller
 		}
 		return false;
 	}
+    /**
+     * @param array $values
+     * @param string $operation
+     * @param false $ignore
+     */
+	protected function validate(array $values, $operation, $ignore = false)
+    {
+        try {
+            $this->model->massValidate($values, $operation);
+        } catch (ValidationException $v) {
+            if (!$ignore) {
+                throw $v;
+            }
+            foreach ($v->errors() as $key => $error) {
+                $index = Str::substr($key, 0, strpos($key, '.'));
+                unset($values[$index]);
+            }
+        }
+        return $values;
+    }
 }

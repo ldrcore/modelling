@@ -2,6 +2,8 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
+use LDRCore\Modelling\Models\Traits\Validatable;
+
 trait Updatable
 {
 	use Modeller;
@@ -13,10 +15,16 @@ trait Updatable
 	public function update(array $values)
 	{
 		if ($this->hasMassTriggableMethod(['beforeMassUpdate', 'afterMassUpdated'])) {
+            if (has_trait($this->model, Validatable::class)) {
+                $this->validate($values, Validatable::$UPDATED);
+            }
 			return $this->executeTriggers($values);
 		} elseif ($this->hasTriggableMethod(['beforeUpdate', 'afterUpdated']) && self::$mass === false) {
 			return $this->updateUsingModel($values);
 		}
+		if (has_trait($this->model, Validatable::class)) {
+		    $this->validate($values, Validatable::$UPDATED);
+        }
 		return parent::update($values);
 	}
 	/**

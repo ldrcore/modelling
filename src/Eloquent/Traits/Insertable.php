@@ -2,10 +2,15 @@
 
 namespace LDRCore\Modelling\Eloquent\Traits;
 
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Validator;
+use LDRCore\Modelling\Models\Traits\Validatable;
+
 trait Insertable
 {
 	use Modeller;
-	
+
     /**
      * Insert a new record into the database.
      *
@@ -15,10 +20,16 @@ trait Insertable
 	public function insert(array $values)
 	{
 		if ($this->hasMassTriggableMethod(['beforeMassCreate', 'afterMassCreated'])) {
+            if (has_trait($this->model, Validatable::class)) {
+                $this->validate($values, Validatable::$CREATED);
+            }
 			return $this->executeInsertTriggers($values);
 		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			return $this->insertModel($values) > 0;
 		}
+		if (has_trait($this->model, Validatable::class)) {
+		    $this->validate($values, Validatable::$CREATED);
+        }
 		return parent::insert($values);
 	}
     /**
@@ -31,10 +42,16 @@ trait Insertable
 	public function insertGetId(array $values, $sequence = null)
 	{
 		if ($this->hasMassTriggableMethod(['beforeMassCreate', 'afterMassCreated'])) {
+            if (has_trait($this->model, Validatable::class)) {
+                $this->validate($values, Validatable::$CREATED);
+            }
 			return $this->executeInsertGetIdTriggers($values);
 		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			return $this->insertModel($values);
 		}
+		if (has_trait($this->model, Validatable::class)) {
+		    $this->validate($values, Validatable::$CREATED);
+        }
 		return parent::insertGetId($values, $sequence);
 	}
     /**
@@ -46,11 +63,17 @@ trait Insertable
 	public function insertOrIgnore(array $values)
 	{
 		if ($this->hasMassTriggableMethod(['beforeMassCreate', 'afterMassCreated'])) {
+            if (has_trait($this->model, Validatable::class)) {
+                $this->validate($values, Validatable::$CREATED,true);
+            }
 			return $this->executeInsertOrIgnoreTriggers($values);
 		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
-			$this->insertModel($values, true);
+			$this->insertModel($values,  true);
 			return true;
 		}
+        if (has_trait($this->model, Validatable::class)) {
+            $this->validate($values, Validatable::$CREATED, true);
+        }
 		return parent::insertOrIgnore($values);
 	}
     /**
@@ -63,10 +86,16 @@ trait Insertable
 	public function insertUsing(array $columns, $query)
 	{
 		if ($this->hasMassTriggableMethod(['beforeMassCreateUsing', 'afterMassCreatedUsing'])) {
+            if (has_trait($this->model, Validatable::class)) {
+                $this->validate($values, Validatable::$CREATED);
+            }
 			return $this->executeInsertUsingTriggers($columns, $query);
 		} elseif ($this->hasTriggableMethod(['beforeCreate', 'afterCreated']) && self::$mass === false) {
 			return $this->insertUsingModel($columns, $query);
 		}
+        if (has_trait($this->model, Validatable::class)) {
+            $this->validate($values, Validatable::$CREATED);
+        }
 		return parent::insertUsing($columns, $query);
 	}
 	/**

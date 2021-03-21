@@ -6,8 +6,10 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 use LDRCore\Modelling\Models\Observers\ValidatableObserver;
 use LDRCore\Modelling\Models\Rules;
 
@@ -146,12 +148,13 @@ trait Validatable
 	}
 	/**
 	 * Return the validator instance.
-	 * @param $operation
+     * @param $data
+     * @param $rules
 	 * @return ValidatorContract
 	 */
-	public function makeValidator($operation)
+	public function makeValidator($data, $rules)
 	{
-		return Validator::make($this->getValidationData(), $this->getRules($operation), $this->getMessages(), $this->getLabels());
+		return Validator::make($data, $rules, $this->getMessages(), $this->getLabels());
 	}
 	/**
 	 * Validate current instance in the designed operation (default "Create")
@@ -160,13 +163,67 @@ trait Validatable
 	public function validate($operation)
 	{
 		$this->beforeValidate();
-		$v = $this->makeValidator($operation);
+		$v = $this->makeValidator($this->getValidationData(), $this->getRules($operation), $operation);
 		$v->after(function () use ($v) {
 			$this->errors = $v->errors();
 		});
 		$v->validate();
 		$this->afterValidated($v);
 	}
+    /**
+     * Validate the mass operation using current defined rules
+     * @param array $values
+     * @param $operation
+     */
+	public function massValidate(array $values, $operation)
+    {
+        $this->beforeMassValidate();
+        $fields = $this->getRules($operation);
+        $uniques = $this->getUniqueRules($fields);
+        $labels = $this->getLabels();
+        $newRules = [];
+        foreach ($fields as $field => $rules) {
+            $newRules["*.{$field}"] = $rules;
+        }
+        $v = $this->makeValidator($values, $newRules);
+        $v->after(function ($v) use ($values, $uniques) {
+            $values = collect($values);
+            foreach ($uniques as $field) {
+                $temp = collect([]);
+                $list = $values->pluck($field);
+                $attribute = $labels[$field] ?? $field;
+                foreach ($list as $index => $value) {
+                    if ($temp->contains($value)) {
+                        $v->errors()->add("$index.$field", __('validation.unique', ['attribute' => "$index.$attribute"]));
+                    } else {
+                        $temp->add($value);
+                    }
+                }
+                // Cleaning
+                unset($temp);
+                unset($list);
+            }
+        });
+        $v->validate();
+        $this->afterMassValidated($v);
+    }
+    /**
+     * List defined unique rules
+     * @param $fields
+     * @return array
+     */
+	public function getUniqueRules($fields)
+    {
+        $uniques = [];
+        foreach ($fields as $field => $rules) {
+            foreach ($rules as $rule) {
+                if ( $rule instanceof Unique || (is_string($rule) && stripos($rule, 'unique')!==false) ) {
+                    $uniques[] = $field;
+                }
+            }
+        }
+        return $uniques;
+    }
 	/**
 	 * Hooks before the validation happens.
 	 */
@@ -174,10 +231,23 @@ trait Validatable
 	{
 	}
 	/**
+	 * Hooks before the mass validation happens.
+	 */
+	public function beforeMassValidate()
+	{
+	}
+	/**
 	 * Hook after the validation happens.
 	 * @param ValidatorContract $validator
 	 */
 	public function afterValidated(ValidatorContract $validator)
+	{
+	}
+	/**
+	 * Hook after the mass validation happens.
+	 * @param ValidatorContract $validator
+	 */
+	public function afterMassValidated(ValidatorContract $validator)
 	{
 	}
 }
